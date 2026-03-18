@@ -35,7 +35,7 @@ export default function HeroSection() {
 
           <button className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 px-6 py-3 rounded-lg font-semibold shadow-lg transition">
             <FaUserGraduate />
-            Explore Training Cources
+            Explore Cources
           </button>
 
         </div>

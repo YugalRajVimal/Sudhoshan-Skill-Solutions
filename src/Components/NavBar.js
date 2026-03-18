@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import { HiMenu, HiX } from "react-icons/hi";
+import { Link } from "react-router-dom"; // Added for routing
 
 // Simpler course list for dropdowns
 const COURSE_LIST = [
@@ -44,7 +45,7 @@ export default function Navbar() {
     : "pointer-events-auto w-full rounded-none shadow-md transition-all duration-200 bg-[#1e3a8a]";
   const navbarStyle = scrolled
     ? {
-        backgroundColor: "rgba(30,58,138,0.7)", // bg-[#1e3a8a]/70 for dark blue
+        backgroundColor: "rgba(30,58,138,0.7)",
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
         borderRadius: 16,
@@ -105,12 +106,16 @@ export default function Navbar() {
 
             {/* Desktop Menu */}
             <ul className="hidden md:flex items-center gap-8 text-sm font-medium">
-              <li className="cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors">Home</li>
-
-              <li className="cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors">
-                About Us
+              <li>
+                <Link to="/" className="cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors">
+                  Home
+                </Link>
               </li>
-
+              <li>
+                <Link to="/about" className="cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors">
+                  About Us
+                </Link>
+              </li>
               {/* Services Dropdown */}
               <li
                 className="relative"
@@ -122,29 +127,35 @@ export default function Navbar() {
                 </div>
                 {servicesOpen && (
                   <div className="absolute top-[2.8rem] left-0 bg-white/90 text-[#1F2937] rounded-xl shadow-lg w-60 py-2 z-20 backdrop-blur-md"
-                    style={{
-                      backdropFilter: "blur(7px)",
-                      WebkitBackdropFilter: "blur(7px)",
-                      border: "1px solid rgba(30,58,138,0.055)"
-                    }}>
-                    <a className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
+                       style={{
+                         backdropFilter: "blur(7px)",
+                         WebkitBackdropFilter: "blur(7px)",
+                         border: "1px solid rgba(30,58,138,0.055)"
+                       }}>
+                    <Link to="/services/education-skill-training"
+                      className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
                       Education & Skill Training
-                    </a>
-                    <a className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
+                    </Link>
+                    <Link to="/services/placement-staffing"
+                      className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
                       Placement & Staffing
-                    </a>
-                    <a className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
+                    </Link>
+                    <Link to="/services/career-guidance"
+                      className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
                       Career Guidance
-                    </a>
-                    <a className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
+                    </Link>
+                    <Link to="/services/corporate-training"
+                      className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
                       Corporate Training
-                    </a>
-                    <a className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
+                    </Link>
+                    <Link to="/services/digital-solutions"
+                      className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
                       Digital Solutions
-                    </a>
-                    <a className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
+                    </Link>
+                    <Link to="/services/franchise-partnership"
+                      className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
                       Franchise & Partnership
-                    </a>
+                    </Link>
                   </div>
                 )}
               </li>
@@ -160,11 +171,11 @@ export default function Navbar() {
                 </div>
                 {coursesOpen && (
                   <div className="absolute top-[2.8rem] left-0 bg-white/95 text-[#1F2937] rounded-2xl shadow-lg w-80 py-2 z-20 backdrop-blur-md"
-                    style={{
-                      backdropFilter: "blur(7px)",
-                      WebkitBackdropFilter: "blur(7px)",
-                      border: "1px solid rgba(30,58,138,0.04)"
-                    }}>
+                       style={{
+                         backdropFilter: "blur(7px)",
+                         WebkitBackdropFilter: "blur(7px)",
+                         border: "1px solid rgba(30,58,138,0.04)"
+                       }}>
                     {COURSE_LIST.map((name, i) => (
                       <span
                         key={i}
@@ -176,16 +187,28 @@ export default function Navbar() {
                   </div>
                 )}
               </li>
-
-              <li className="cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors">
-                Jobs
+              <li>
+                <Link to="/jobs" className="cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors">
+                  Jobs
+                </Link>
               </li>
-              <li className="cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors">
-                Partners
+              <li>
+                <Link to="/partners" className="cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors">
+                  Partners
+                </Link>
               </li>
-              <li className="cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors">
-                Contact
+              <li>
+                <Link to="/blogs" className="cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors">
+                  Blogs
+                </Link>
               </li>
+              <li>
+                <Link to="/contact" className="cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors">
+                  Contact
+                </Link>
+              </li>
+              {/* Blogs Link */}
+             
             </ul>
 
             {/* Mobile Button */}
@@ -211,9 +234,15 @@ export default function Navbar() {
             WebkitBackdropFilter: "blur(12px)",
           }}>
           <ul className="flex flex-col gap-2 px-6 pt-6 pb-6 text-sm font-medium">
-            <li className="cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors">Home</li>
-            <li className="cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors">
-              About Us
+            <li>
+              <Link to="/" className="cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors">
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link to="/about" className="cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors">
+                About Us
+              </Link>
             </li>
             {/* Services Dropdown (collapsible for mobile) */}
             <li>
@@ -228,24 +257,30 @@ export default function Navbar() {
               </div>
               {mobileServicesOpen && (
                 <div className="mt-2 ml-2 bg-white/90 text-[#1F2937] rounded-xl shadow-lg w-full py-2 z-20 backdrop-blur-md">
-                  <a className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
+                  <Link to="/services/education-skill-training"
+                    className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
                     Education & Skill Training
-                  </a>
-                  <a className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
+                  </Link>
+                  <Link to="/services/placement-staffing"
+                    className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
                     Placement & Staffing
-                  </a>
-                  <a className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
+                  </Link>
+                  <Link to="/services/career-guidance"
+                    className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
                     Career Guidance
-                  </a>
-                  <a className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
+                  </Link>
+                  <Link to="/services/corporate-training"
+                    className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
                     Corporate Training
-                  </a>
-                  <a className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
+                  </Link>
+                  <Link to="/services/digital-solutions"
+                    className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
                     Digital Solutions
-                  </a>
-                  <a className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
+                  </Link>
+                  <Link to="/services/franchise-partnership"
+                    className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
                     Franchise & Partnership
-                  </a>
+                  </Link>
                 </div>
               )}
             </li>
@@ -273,15 +308,28 @@ export default function Navbar() {
                 </div>
               )}
             </li>
-            <li className="cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors">
-              Jobs
+            <li>
+              <Link to="/jobs" className="cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors">
+                Jobs
+              </Link>
             </li>
-            <li className="cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors">
-              Partners
+            <li>
+              <Link to="/partners" className="cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors">
+                Partners
+              </Link>
             </li>
-            <li className="cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors">
-              Contact
+            <li>
+              <Link to="/blogs" className="cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors">
+                Blogs
+              </Link>
             </li>
+            <li>
+              <Link to="/contact" className="cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors">
+                Contact
+              </Link>
+            </li>
+            {/* Blogs Link for mobile */}
+          
           </ul>
         </div>
       )}

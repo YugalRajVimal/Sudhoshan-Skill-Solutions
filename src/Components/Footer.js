@@ -13,10 +13,11 @@ import {
 const QUICK_LINKS = [
   { label: "Home", href: "/" },
   { label: "About Us", href: "/about" },
-  { label: "Services", href: "#" },
-  { label: "Jobs", href: "#" },
-  { label: "Partners", href: "#" },
-  { label: "Contact", href: "#" },
+  { label: "Services", href: "/services" },
+  { label: "Jobs", href: "/jobs" },
+  { label: "Partners", href: "/partners" },
+  { label: "Blogs", href: "/blogs" },
+  { label: "Contact", href: "/contact" },
 ];
 
 const SERVICE_LIST = [
