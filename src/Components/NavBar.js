@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import { HiMenu, HiX } from "react-icons/hi";
-import { Link } from "react-router-dom"; // Added for routing
+import { Link, useLocation } from "react-router-dom";
 
 // Simpler course list for dropdowns
 const COURSE_LIST = [
@@ -37,6 +37,33 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Mobile dropdown open states
+  const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
+  const [mobileCoursesOpen, setMobileCoursesOpen] = useState(false);
+
+  const location = useLocation();
+
+  // Move to top on route change
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [location.pathname]);
+
+  // Common handler for any link click
+  const handleNavClick = useCallback(
+    (opts = {}) => {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      // Only close menu on mobile
+      setMenuOpen(false);
+
+      // Close mobile dropdowns after navigation if specified
+      if (opts.closeMobileDropdowns) {
+        setMobileServicesOpen(false);
+        setMobileCoursesOpen(false);
+      }
+    },
+    []
+  );
+
   // Desktop Nav Styles for rounded, non-full and blur when scrolled
   const navbarContainerClass =
     "fixed left-0 top-0 right-0 z-40 flex justify-center pointer-events-none";
@@ -53,10 +80,6 @@ export default function Navbar() {
         marginRight: "auto",
       }
     : { backgroundColor: "#1e3a8a" };
-
-  // Mobile dropdown open states
-  const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
-  const [mobileCoursesOpen, setMobileCoursesOpen] = useState(false);
 
   return (
     <>
@@ -107,12 +130,20 @@ export default function Navbar() {
             {/* Desktop Menu */}
             <ul className="hidden md:flex items-center gap-8 text-sm font-medium">
               <li>
-                <Link to="/" className="cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors">
+                <Link
+                  to="/"
+                  className="cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors"
+                  onClick={handleNavClick}
+                >
                   Home
                 </Link>
               </li>
               <li>
-                <Link to="/about" className="cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors">
+                <Link
+                  to="/about"
+                  className="cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors"
+                  onClick={handleNavClick}
+                >
                   About Us
                 </Link>
               </li>
@@ -132,28 +163,46 @@ export default function Navbar() {
                          WebkitBackdropFilter: "blur(7px)",
                          border: "1px solid rgba(30,58,138,0.055)"
                        }}>
-                    <Link to="/services/education-skill-training"
-                      className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
+                    <Link
+                      to="/services/education-skill-training"
+                      className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
+                      onClick={handleNavClick}
+                    >
                       Education & Skill Training
                     </Link>
-                    <Link to="/services/placement-staffing"
-                      className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
+                    <Link
+                      to="/services/placement-staffing"
+                      className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
+                      onClick={handleNavClick}
+                    >
                       Placement & Staffing
                     </Link>
-                    <Link to="/services/career-guidance"
-                      className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
+                    <Link
+                      to="/services/career-guidance"
+                      className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
+                      onClick={handleNavClick}
+                    >
                       Career Guidance
                     </Link>
-                    <Link to="/services/corporate-training"
-                      className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
+                    <Link
+                      to="/services/corporate-training"
+                      className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
+                      onClick={handleNavClick}
+                    >
                       Corporate Training
                     </Link>
-                    <Link to="/services/digital-solutions"
-                      className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
+                    <Link
+                      to="/services/digital-solutions"
+                      className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
+                      onClick={handleNavClick}
+                    >
                       Digital Solutions
                     </Link>
-                    <Link to="/services/franchise-partnership"
-                      className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
+                    <Link
+                      to="/services/franchise-partnership"
+                      className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
+                      onClick={handleNavClick}
+                    >
                       Franchise & Partnership
                     </Link>
                   </div>
@@ -180,6 +229,10 @@ export default function Navbar() {
                       <span
                         key={i}
                         className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] text-sm rounded-md cursor-pointer transition-colors"
+                        // Optionally you can wrap it with a Link if you want to navigate
+                        onClick={() => {
+                          handleNavClick();
+                        }}
                       >
                         {name}
                       </span>
@@ -188,22 +241,38 @@ export default function Navbar() {
                 )}
               </li>
               <li>
-                <Link to="/jobs" className="cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors">
+                <Link
+                  to="/jobs"
+                  className="cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors"
+                  onClick={handleNavClick}
+                >
                   Jobs
                 </Link>
               </li>
               <li>
-                <Link to="/partners" className="cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors">
+                <Link
+                  to="/partners"
+                  className="cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors"
+                  onClick={handleNavClick}
+                >
                   Partners
                 </Link>
               </li>
               <li>
-                <Link to="/blogs" className="cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors">
+                <Link
+                  to="/blogs"
+                  className="cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors"
+                  onClick={handleNavClick}
+                >
                   Blogs
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors">
+                <Link
+                  to="/contact"
+                  className="cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors"
+                  onClick={handleNavClick}
+                >
                   Contact
                 </Link>
               </li>
@@ -235,12 +304,20 @@ export default function Navbar() {
           }}>
           <ul className="flex flex-col gap-2 px-6 pt-6 pb-6 text-sm font-medium">
             <li>
-              <Link to="/" className="cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors">
+              <Link
+                to="/"
+                className="cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors"
+                onClick={() => handleNavClick({ closeMobileDropdowns: true })}
+              >
                 Home
               </Link>
             </li>
             <li>
-              <Link to="/about" className="cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors">
+              <Link
+                to="/about"
+                className="cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors"
+                onClick={() => handleNavClick({ closeMobileDropdowns: true })}
+              >
                 About Us
               </Link>
             </li>
@@ -257,28 +334,46 @@ export default function Navbar() {
               </div>
               {mobileServicesOpen && (
                 <div className="mt-2 ml-2 bg-white/90 text-[#1F2937] rounded-xl shadow-lg w-full py-2 z-20 backdrop-blur-md">
-                  <Link to="/services/education-skill-training"
-                    className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
+                  <Link
+                    to="/services/education-skill-training"
+                    className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
+                    onClick={() => handleNavClick({ closeMobileDropdowns: true })}
+                  >
                     Education & Skill Training
                   </Link>
-                  <Link to="/services/placement-staffing"
-                    className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
+                  <Link
+                    to="/services/placement-staffing"
+                    className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
+                    onClick={() => handleNavClick({ closeMobileDropdowns: true })}
+                  >
                     Placement & Staffing
                   </Link>
-                  <Link to="/services/career-guidance"
-                    className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
+                  <Link
+                    to="/services/career-guidance"
+                    className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
+                    onClick={() => handleNavClick({ closeMobileDropdowns: true })}
+                  >
                     Career Guidance
                   </Link>
-                  <Link to="/services/corporate-training"
-                    className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
+                  <Link
+                    to="/services/corporate-training"
+                    className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
+                    onClick={() => handleNavClick({ closeMobileDropdowns: true })}
+                  >
                     Corporate Training
                   </Link>
-                  <Link to="/services/digital-solutions"
-                    className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
+                  <Link
+                    to="/services/digital-solutions"
+                    className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
+                    onClick={() => handleNavClick({ closeMobileDropdowns: true })}
+                  >
                     Digital Solutions
                   </Link>
-                  <Link to="/services/franchise-partnership"
-                    className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer">
+                  <Link
+                    to="/services/franchise-partnership"
+                    className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
+                    onClick={() => handleNavClick({ closeMobileDropdowns: true })}
+                  >
                     Franchise & Partnership
                   </Link>
                 </div>
@@ -301,6 +396,9 @@ export default function Navbar() {
                     <span
                       key={i}
                       className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] text-sm rounded-md cursor-pointer transition-colors"
+                      onClick={() => {
+                        handleNavClick({ closeMobileDropdowns: true });
+                      }}
                     >
                       {name}
                     </span>
@@ -309,22 +407,38 @@ export default function Navbar() {
               )}
             </li>
             <li>
-              <Link to="/jobs" className="cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors">
+              <Link
+                to="/jobs"
+                className="cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors"
+                onClick={() => handleNavClick({ closeMobileDropdowns: true })}
+              >
                 Jobs
               </Link>
             </li>
             <li>
-              <Link to="/partners" className="cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors">
+              <Link
+                to="/partners"
+                className="cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors"
+                onClick={() => handleNavClick({ closeMobileDropdowns: true })}
+              >
                 Partners
               </Link>
             </li>
             <li>
-              <Link to="/blogs" className="cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors">
+              <Link
+                to="/blogs"
+                className="cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors"
+                onClick={() => handleNavClick({ closeMobileDropdowns: true })}
+              >
                 Blogs
               </Link>
             </li>
             <li>
-              <Link to="/contact" className="cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors">
+              <Link
+                to="/contact"
+                className="cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors"
+                onClick={() => handleNavClick({ closeMobileDropdowns: true })}
+              >
                 Contact
               </Link>
             </li>
