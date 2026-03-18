@@ -46,6 +46,28 @@ const COURSE_LIST = [
 export default function Footer() {
   return (
     <footer className="bg-[#1e3a8a] text-white">
+
+      <div className=" w-full py-4 px-4 flex justify-center border-b border-blue-700">
+        <div className="max-w-5xl w-full text-center">
+          <p className="text-blue-100 text-sm md:text-base leading-relaxed">
+            <span className="font-semibold text-white">
+              Registered by Govt. of India, Ministry of Corporate Affairs (MCA)
+            </span>
+            <span className="mx-1 hidden sm:inline" aria-hidden="true">|</span>
+            <br className="inline sm:hidden" />
+            Under Section 8, Company Act 2013. <br className="inline md:hidden" />
+            <span className="block sm:inline">
+              <span className="font-medium">Registration No.:</span> <span className="text-blue-200">xxxxxxxxxxxxxxxxxxxx</span>
+              <span className="mx-1 hidden sm:inline" aria-hidden="true">|</span>
+              <span className="ml-0 sm:ml-2">An ISO <span className="font-semibold">9001:2015</span> Certified</span>
+              <span className="mx-1 hidden sm:inline" aria-hidden="true">|</span>
+              Regd. with <span className="font-semibold">MSME</span>
+              <span className="mx-1 hidden sm:inline" aria-hidden="true">|</span>
+              Tax Exemption Under <span className="font-semibold">80G</span> &amp; <span className="font-semibold">12AA</span> of Income Tax Act, 1961
+            </span>
+          </p>
+        </div>
+      </div>
       <div className=" mx-auto px-6 py-16 grid md:grid-cols-2 lg:grid-cols-4 gap-10">
         {/* Company Info */}
         <div>

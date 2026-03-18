@@ -4,6 +4,8 @@ import ServicesSection from '../Components/OurServices'
 import JobSearchSection from '../Components/JobSearchSection'
 import TestimonialSection from '../Components/TestimonialsSection'
 import PlacementPartners from '../Components/PlacementPartners'
+import { Leadership } from '../Components/AboutPage/LeadershipSection'
+import HomeBlogsSection from '../Components/AboutPage/BlogComp'
 
 const Home = () => {
   return (
@@ -13,6 +15,8 @@ const Home = () => {
         <JobSearchSection />
         <PlacementPartners />   
         <TestimonialSection />
+        <Leadership />
+        <HomeBlogsSection />
     </div>
   )
 }

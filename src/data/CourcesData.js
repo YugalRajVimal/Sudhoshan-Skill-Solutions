@@ -84,6 +84,7 @@ export const COURSE_NOTES = [
 export const COURSES_DETAILS = [
   {
     id: "01",
+    slug: "digital-literacy-internet-essentials",
     title: "Digital Literacy & Internet Essentials",
     category: "FOUNDATION",
     tagline: "Your first step into the digital world",
@@ -107,6 +108,7 @@ export const COURSES_DETAILS = [
   },
   {
     id: "02",
+    slug: "basic-computer-operations",
     title: "Basic Computer Operations",
     category: "FOUNDATION",
     tagline: "Learn computers from scratch — no prior knowledge needed",
@@ -131,6 +133,7 @@ export const COURSES_DETAILS = [
   },
   {
     id: "03",
+    slug: "job-readiness-workplace-skills-training",
     title: "Job Readiness & Workplace Skills Training",
     category: "EMPLOYABILITY",
     tagline: "Get job-ready before your first interview",
@@ -156,6 +159,7 @@ export const COURSES_DETAILS = [
   },
   {
     id: "04",
+    slug: "gst-accounting-fundamentals",
     title: "GST & Accounting Fundamentals",
     category: "FINANCE & COMMERCE",
     tagline: "Understand GST and accounting basics for real work",
@@ -182,6 +186,7 @@ export const COURSES_DETAILS = [
   },
   {
     id: "05",
+    slug: "ms-excel-data-entry-professional-skills",
     title: "MS Excel & Data Entry Professional Skills",
     category: "COMPUTER SKILLS",
     tagline: "Master Excel and become a data entry professional",
@@ -209,6 +214,7 @@ export const COURSES_DETAILS = [
   },
   {
     id: "06",
+    slug: "resume-writing-linkedin-profile-building",
     title: "Resume Writing & LinkedIn Profile Building",
     category: "EMPLOYABILITY",
     tagline: "Build a resume that gets you shortlisted",
@@ -235,6 +241,7 @@ export const COURSES_DETAILS = [
   },
   {
     id: "07",
+    slug: "interview-preparation-communication-skills",
     title: "Interview Preparation & Communication Skills",
     category: "EMPLOYABILITY",
     tagline: "Walk into interviews with confidence and clarity",
@@ -262,6 +269,7 @@ export const COURSES_DETAILS = [
   },
   {
     id: "08",
+    slug: "retail-sales-customer-handling-training",
     title: "Retail Sales & Customer Handling Training",
     category: "SALES & MARKETING",
     tagline: "Sell better, serve better, earn better",
@@ -288,6 +296,7 @@ export const COURSES_DETAILS = [
   },
   {
     id: "09",
+    slug: "customer-support-executive-training",
     title: "Customer Support Executive Training",
     category: "BPO / CUSTOMER SERVICE",
     tagline: "Build a career in customer support — one of India's fastest-growing sectors",
@@ -315,6 +324,7 @@ export const COURSES_DETAILS = [
   },
   {
     id: "10",
+    slug: "office-administration-front-office-management",
     title: "Office Administration & Front Office Management",
     category: "ADMINISTRATION",
     tagline: "Be the backbone of any office — professional, organized, and reliable",
