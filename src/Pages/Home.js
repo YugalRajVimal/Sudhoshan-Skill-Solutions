@@ -16,7 +16,6 @@ const Home = () => {
         <PlacementPartners />   
         <TestimonialSection />
         <Leadership />
-        <HomeBlogsSection />
     </div>
   )
 }

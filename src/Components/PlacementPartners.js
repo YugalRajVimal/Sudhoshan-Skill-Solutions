@@ -1,4 +1,45 @@
+import { useEffect, useRef, useState } from "react";
 import { FaBriefcase, FaBuilding, FaMapMarkerAlt, FaUniversity, FaUserGraduate } from "react-icons/fa";
+
+// Animated Counter hook: Do NOT auto start, you must trigger with `shouldStart`
+function useCountUp(to, duration = 1800, { start = 0, shouldStart = false } = {}) {
+  const [count, setCount] = useState(start || 0);
+  const rafRef = useRef();
+  useEffect(() => {
+    if (!shouldStart) return; // Do NOT start unless told!
+    let end = typeof to === "number" ? to : parseInt(to, 10);
+    let startTime = null;
+    const step = (timestamp) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      const value = Math.floor(start + (end - start) * progress);
+      setCount(value);
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(step);
+      } else {
+        setCount(end);
+      }
+    };
+    rafRef.current = requestAnimationFrame(step);
+    return () => rafRef.current && cancelAnimationFrame(rafRef.current);
+    // eslint-disable-next-line
+  }, [to, duration, shouldStart]);
+  return count;
+}
+
+// Utility to detect if element has entered the viewport
+function useOnScreen(ref, rootMargin = "0px") {
+  const [isIntersecting, setIntersecting] = useState(false);
+  useEffect(() => {
+    const observer = new window.IntersectionObserver(
+      ([entry]) => setIntersecting(entry.isIntersecting),
+      { rootMargin }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [ref, rootMargin]);
+  return isIntersecting;
+}
 
 export default function PlacementPartners() {
   // Brand color palette
@@ -47,9 +88,105 @@ export default function PlacementPartners() {
     }
   ];
 
+  // stat configs: use valueNum and valueSuffix for animation
+  const stats = [
+    {
+      valueNum: 50, valueSuffix: "+",
+      label: "Candidates Placed",
+      color: COLORS.accent,
+      icon: (
+        <span className="inline-block bg-orange-100 text-orange-500 rounded-full p-3 mb-2 shadow-sm">
+          <FaBriefcase className="w-6 h-6" />
+        </span>
+      ),
+      duration: 1500
+    },
+    {
+      valueNum: 10, valueSuffix: "+",
+      label: "Partner Companies",
+      color: COLORS.accent,
+      icon: (
+        <span className="inline-block bg-blue-100 text-blue-500 rounded-full p-3 mb-2 shadow-sm">
+          <FaBuilding className="w-6 h-6" />
+        </span>
+      ),
+      duration: 1200
+    },
+    {
+      valueNum: 5, valueSuffix: "+",
+      label: "Colleges Connected",
+      color: COLORS.accent,
+      icon: (
+        <span className="inline-block bg-green-100 text-green-600 rounded-full p-3 mb-2 shadow-sm">
+          <FaUniversity className="w-6 h-6" />
+        </span>
+      ),
+      duration: 1200
+    },
+    {
+      valueNum: 100, valueSuffix: "+",
+      label: "Students Trained",
+      color: COLORS.accent,
+      icon: (
+        <span className="inline-block bg-purple-100 text-purple-500 rounded-full p-3 mb-2 shadow-sm">
+          <FaUserGraduate className="w-6 h-6" />
+        </span>
+      ),
+      duration: 1750
+    },
+    {
+      valueNum: 5, valueSuffix: "+",
+      label: "Cities Served",
+      color: COLORS.accent,
+      icon: (
+        <span className="inline-block bg-yellow-100 text-yellow-600 rounded-full p-3 mb-2 shadow-sm">
+          <FaMapMarkerAlt className="w-6 h-6" />
+        </span>
+      ),
+      duration: 1100
+    },
+  ];
+
+  // Ref to the section element
+  const sectionRef = useRef(null);
+  // Detect if our section is visible on (any) user's screen
+  const isVisible = useOnScreen(sectionRef, "-100px");
+
+  // For animated stats, only start the count when the section is visible
+  const animatedCount0 = useCountUp(stats[0].valueNum, stats[0].duration, { start: 0, shouldStart: isVisible });
+  const animatedCount1 = useCountUp(stats[1].valueNum, stats[1].duration, { start: 0, shouldStart: isVisible });
+  const animatedCount2 = useCountUp(stats[2].valueNum, stats[2].duration, { start: 0, shouldStart: isVisible });
+  const animatedCount3 = useCountUp(stats[3].valueNum, stats[3].duration, { start: 0, shouldStart: isVisible });
+  const animatedCount4 = useCountUp(stats[4].valueNum, stats[4].duration, { start: 0, shouldStart: isVisible });
+  const animatedCounts = [
+    animatedCount0,
+    animatedCount1,
+    animatedCount2,
+    animatedCount3,
+    animatedCount4,
+  ];
+
+  // Marquee animation CSS (inline style or could be an external class)
+  const marqueeAnim = `
+    @keyframes marquee-slide {
+      0% {transform: translateX(0);}
+      100% {transform: translateX(-50%);}
+    }
+  `;
+
+  // Add a helper function to check for the Awign partner based on logo path and name
+  const isAwign = (partner) =>
+    (partner.logo === "/client/awign.svg" || partner.logo === "/client/awign.png") &&
+    partner.name.toLowerCase().includes("awign");
+
   return (
-    <section style={{ background: COLORS.bg }} className="py-24">
-      <div className="max-w-7xl mx-auto px-6 text-center">
+    <section
+      style={{ background: COLORS.bg }}
+      className="py-24"
+      ref={sectionRef}
+    >
+      <style>{marqueeAnim}</style>
+      <div className=" text-center">
         {/* Heading */}
         <h2 className="text-4xl font-bold font-serif mb-3" style={{ color: COLORS.textDark }}>
           We Place <span style={{ color: COLORS.accent }}>Candidates</span> In
@@ -58,114 +195,58 @@ export default function PlacementPartners() {
           <span style={{ color: COLORS.accent, fontWeight: 500 }}>Our trusted</span> hiring and institutional partners
         </p>
 
-        {/* Partner Logos Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {partners.map((partner, index) => (
-            <div
-              key={index}
-              className={
-                "rounded-xl p-10 shadow-lg hover:scale-105 transition flex flex-col items-center justify-center bg-gradient-to-r from-blue-900 via-blue-900 to-blue-900"
-              }
-            //   style={{
-            //     border: `2.5px solid ${COLORS.accent}`,
-            //     boxShadow:
-            //       "0 8px 28px 0 rgba(34,92,230,0.13), 0 2px 4.5px 0 rgba(255,122,0,0.06)",
-            //   }}
-            >
-              {partner.logo ? (
-                <div className="py-1 flex items-center justify-center mb-4 ">
+        {/* Partner Logos One-Line Infinite Marquee */}
+        <div className="relative w-full overflow-x-hidden mb-16" style={{height: "8rem" /* for vertical center of logos */}}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              height: "100%",
+              width: "max-content",
+              minWidth: "100%",
+              animation: "marquee-slide 18s linear infinite",
+            }}
+            className="gap-12"
+          >
+            {[...partners, ...partners].map((partner, index) => (
+              <div key={index} className="flex flex-col items-center px-10" style={{minWidth: 180}}>
+                {partner.logo ? (
                   <img
                     src={partner.logo}
                     alt={partner.alt}
-                    className="h-24 object-contain p-2 rounded-xl"
-                    // style={{
-                    //   borderRadius: 8,
-                    //   border: `2.5px solid ${COLORS.accent}`,
-                    // //   background: "#fff4eb",
-                    // }}
+                    className={
+                      "h-24 object-contain p-2 rounded-xl shadow" +
+                      (isAwign(partner) ? " bg-gray-800" : " bg-white")
+                    }
+                    style={{
+                      maxWidth: 170,
+                      backgroundColor: isAwign(partner) ? "#1A2534" : undefined, // fallback if custom bg not working
+                    }}
                   />
-                </div>
-              ) : (
-                <FaBuilding className="text-4xl mx-auto mb-4 opacity-90" style={{ color: COLORS.accent }} />
-              )}
-
-              {/* If you want to highlight names in orange, uncomment below: */}
-              {/* <h3 className="text-xl font-semibold drop-shadow"
-                  style={{
-                    color: COLORS.accent,
-                    textShadow: "0 2px 8px rgba(255,122,0,0.15), 0 1px 3px rgba(255,122,0,0.13)"
-                  }}>
-                {partner.name}
-              </h3> */}
-            </div>
-          ))}
+                ) : (
+                  <FaBuilding className="text-4xl mx-auto mb-4 opacity-90" style={{ color: COLORS.accent }} />
+                )}
+                <span className="text-xs mt-2 text-gray-500 font-medium">{partner.name}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Statistics */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 md:gap-8 text-center mt-8">
-          {[
-            {
-              value: "50+",
-              label: "Candidates Placed",
-              color: COLORS.accent,
-              icon: (
-                <span className="inline-block bg-orange-100 text-orange-500 rounded-full p-3 mb-2 shadow-sm">
-                  <FaBriefcase className="w-6 h-6" />
-                </span>
-              ),
-            },
-            {
-              value: "10+",
-              label: "Partner Companies",
-              color: COLORS.accent,
-              icon: (
-                <span className="inline-block bg-blue-100 text-blue-500 rounded-full p-3 mb-2 shadow-sm">
-                  <FaBuilding className="w-6 h-6" />
-                </span>
-              ),
-            },
-            {
-              value: "5+",
-              label: "Colleges Connected",
-              color: COLORS.accent,
-              icon: (
-                <span className="inline-block bg-green-100 text-green-600 rounded-full p-3 mb-2 shadow-sm">
-                  <FaUniversity className="w-6 h-6" />
-                </span>
-              ),
-            },
-            {
-              value: "100+",
-              label: "Students Trained",
-              color: COLORS.accent,
-              icon: (
-                <span className="inline-block bg-purple-100 text-purple-500 rounded-full p-3 mb-2 shadow-sm">
-                  <FaUserGraduate className="w-6 h-6" />
-                </span>
-              ),
-            },
-            {
-              value: "5+",
-              label: "Cities Served",
-              color: COLORS.accent,
-              icon: (
-                <span className="inline-block bg-yellow-100 text-yellow-600 rounded-full p-3 mb-2 shadow-sm">
-                  <FaMapMarkerAlt className="w-6 h-6" />
-                </span>
-              ),
-            },
-          ].map((stat) => (
+          {stats.map((stat, i) => (
             <div
               key={stat.label}
               className="
                 flex flex-col items-center rounded-xl bg-gradient-to-b from-white/60 to-blue-100/40 shadow hover:shadow-lg p-6 mx-auto
                 transition-all duration-200 hover:-translate-y-1 border border-blue-100
-                "
-              style={{ maxWidth: 210 }}
+              "
+              style={{ width: 210, minWidth: 180 /* fallback for small screens */ }}
             >
               {stat.icon}
               <p className="text-2xl sm:text-3xl font-bold mb-1" style={{ color: stat.color }}>
-                {stat.value}
+                {animatedCounts[i]}
+                {stat.valueSuffix}
               </p>
               <p className="text-xs sm:text-sm font-medium" style={{ color: COLORS.textLight }}>{stat.label}</p>
             </div>

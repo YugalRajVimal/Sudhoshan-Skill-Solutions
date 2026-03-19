@@ -118,11 +118,11 @@ export default function Navbar() {
                 className="h-16 w-16 bg-white object-contain rounded"
                 style={{ boxShadow: scrolled ? "0px 1px 10px 0px rgba(30,58,138,0.09)" : undefined }}
               />
-              <div>
+              <div className="w-fit">
                 <h1 className="text-xl font-bold font-serif text-[#FF7A00]">
                   Sudhosan Skill Solutions
                 </h1>
-                <p className="text-xs hidden md:block" style={{ color: "#FFFFFF" }}>
+                <p className="text-xs hidden md:block text-center w-full" style={{ color: "#FFFFFF" }}>
                   DREAM | DISCOVER | DELIVER
                 </p>
               </div>
@@ -219,9 +219,13 @@ export default function Navbar() {
                   onMouseEnter={() => setCoursesOpen(true)}
                   onMouseLeave={() => setCoursesOpen(false)}
                 >
-                  <div className="flex items-center gap-1 cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors">
+                  <Link
+                    to="/courses"
+                    className="flex items-center gap-1 cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors"
+                    onClick={handleNavClick}
+                  >
                     Courses <FaChevronDown size={12} />
-                  </div>
+                  </Link>
                   {coursesOpen && (
                     <div className="absolute bottom-100  left-0 bg-white/95 text-[#1F2937] rounded-2xl shadow-lg w-80 py-2 z-20 backdrop-blur-md"
                         style={{
@@ -251,15 +255,7 @@ export default function Navbar() {
                     Jobs
                   </Link>
                 </li>
-                <li>
-                  <Link
-                    to="/partners"
-                    className="cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors"
-                    onClick={handleNavClick}
-                  >
-                    Partners
-                  </Link>
-                </li>
+               
                 <li>
                   <Link
                     to="/blogs"
@@ -391,7 +387,8 @@ export default function Navbar() {
             </li>
             {/* Courses Dropdown (collapsible for mobile) */}
             <li>
-              <div
+              <Link
+                to="/courses"
                 className="flex items-center gap-1 cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors select-none"
                 onClick={() => setMobileCoursesOpen((v) => !v)}
               >
@@ -399,7 +396,7 @@ export default function Navbar() {
                 <span className={mobileCoursesOpen ? "rotate-180 transition-transform" : "transition-transform"}>
                   <FaChevronDown size={12} />
                 </span>
-              </div>
+              </Link>
               {mobileCoursesOpen && (
                 <div className="mt-2 ml-2 bg-white/95 text-[#1F2937] rounded-2xl shadow-lg w-full py-2 z-20 backdrop-blur-md">
                   {COURSE_LIST.map((name, i) => (
@@ -425,15 +422,7 @@ export default function Navbar() {
                 Jobs
               </Link>
             </li>
-            <li>
-              <Link
-                to="/partners"
-                className="cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors"
-                onClick={() => handleNavClick({ closeMobileDropdowns: true })}
-              >
-                Partners
-              </Link>
-            </li>
+           
             <li>
               <Link
                 to="/blogs"

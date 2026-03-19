@@ -15,16 +15,37 @@ const ServicePageTemplate = ({ service }) => {
 
       {/* Hero */}
 
-      <section className="bg-blue-900 text-white py-20 text-center px-6">
+      <section
+        className="relative bg-gradient-to-br from-blue-900 via-blue-700 to-blue-500 text-white py-20 text-center px-6 overflow-hidden"
+        style={{
+          backgroundImage: 'linear-gradient(to bottom right, #1e3a8a, #2563eb, #3b82f6)',
+          backgroundPosition: 'center center',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover',
+        }}
+      >
+        {/* Decorative background image overlay */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none select-none absolute inset-0 w-full h-full z-0"
+          style={{
+            backgroundImage: 'url("/bg.png")',
+            backgroundPosition: "center center",
+            backgroundRepeat: "no-repeat",
+            backgroundSize: "cover",
+            WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 90%)",
+            maskImage: "linear-gradient(to right, transparent 50%, black 90%)",
+          }}
+        />
 
-        <h1 className="text-4xl font-bold mb-4">
-          {service.title}
-        </h1>
-
-        <p className="text-orange-400 font-semibold">
-          {service.tagline}
-        </p>
-
+        <div className="relative z-10">
+          <h1 className="text-4xl font-bold font-serif mb-4">
+            {service.title}
+          </h1>
+          <p className="text-orange-400 font-semibold">
+            {service.tagline}
+          </p>
+        </div>
       </section>
 
 
@@ -39,7 +60,7 @@ const ServicePageTemplate = ({ service }) => {
 
         {/* Features */}
 
-        <h2 className="text-2xl font-bold mb-6">
+        <h2 className="text-2xl font-bold font-serif mb-6">
           What We Offer
         </h2>
 
@@ -65,7 +86,7 @@ const ServicePageTemplate = ({ service }) => {
 
       <section className="bg-gray-50 py-16 text-center">
 
-        <h3 className="text-2xl font-bold mb-4">
+        <h3 className="text-2xl font-bold font-serif mb-4">
           Start Your Journey with Sudhosan
         </h3>
 

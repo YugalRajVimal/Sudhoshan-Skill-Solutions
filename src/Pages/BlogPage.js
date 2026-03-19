@@ -23,17 +23,40 @@ function Link({ to, children, ...rest }) {
 
 function BlogHero() {
   return (
-    <section className="bg-blue-900 text-white py-20 text-center px-6">
-      <h1 className="text-4xl font-bold font-serif mb-4">
-        Sudhosan Insights
-      </h1>
-      <p className="max-w-2xl mx-auto text-blue-100">
-        Discover career guidance, skill development insights,
-        job market trends, and opportunities to build a successful future.
-      </p>
-      <p className="mt-4 text-orange-400 font-semibold">
-        DREAM | DISCOVER | DELIVER
-      </p>
+    <section
+      className="relative bg-gradient-to-br from-blue-900 via-blue-700 to-blue-500 text-white py-20 text-center px-6 overflow-hidden"
+      style={{
+        backgroundImage: 'linear-gradient(to bottom right, #1e3a8a, #2563eb, #3b82f6)',
+        backgroundPosition: "center center",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+      }}
+    >
+      {/* Decorative background image overlay */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none select-none absolute inset-0 w-full h-full z-0"
+        style={{
+          backgroundImage: 'url("/bg.png")',
+          backgroundPosition: "center center",
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "cover",
+          WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 90%)",
+          maskImage: "linear-gradient(to right, transparent 50%, black 90%)",
+        }}
+      />
+
+      <div className="relative z-10">
+        <h1 className="text-4xl font-bold font-serif mb-4">
+          Sudhosan Insights
+        </h1>
+        <p className="max-w-2xl mx-auto text-blue-100">
+          Discover career guidance, skill development insights, job market trends, and opportunities to build a successful future.
+        </p>
+        <p className="mt-4 text-orange-400 font-semibold">
+          DREAM | DISCOVER | DELIVER
+        </p>
+      </div>
     </section>
   );
 }
@@ -44,7 +67,7 @@ function FeaturedBlog() {
   return (
     <section className="py-16 px-6 bg-gray-50">
       <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 items-center">
-       
+
         <img
           src="/blog.avif"
           alt="Bridging the Gap Between Education and Employment"
@@ -96,7 +119,7 @@ function BlogGrid() {
                 <span className="text-orange-500 text-sm">
                   {blog.category}
                 </span>
-                <h3 className="font-semibold text-lg mt-2 mb-4">
+                <h3 className="font-semibold text-lg mt-2 mb-4 font-serif">
                   {blog.title}
                 </h3>
                 <div className="flex text-gray-500 text-sm gap-4 mb-4">
@@ -122,15 +145,13 @@ function BlogGrid() {
   );
 }
 
-
-
 function BlogCTA() {
   return (
-    <section className="bg-blue-900 text-white py-20 text-center px-6">
-      <h2 className="text-3xl font-bold font-serif mb-4">
+    <section className="bg-zinc-50 text-white py-20 text-center px-6">
+      <h2 className="text-3xl font-bold font-serif mb-4 text-gray-900">
         Stay Updated with Career Insights
       </h2>
-      <p className="text-blue-100 mb-8">
+      <p className="text-gray-700 mb-8">
         Get the latest articles, career tips, and job market insights
         from Sudhosan Skill Solutions.
       </p>
@@ -138,9 +159,9 @@ function BlogCTA() {
         <input
           type="email"
           placeholder="Enter your email"
-          className="px-4 py-3 rounded-md text-black w-72"
+          className="px-4 py-3 rounded-md text-gray-900 w-72"
         />
-        <button className="bg-orange-500 px-6 py-3 rounded-md hover:bg-orange-600">
+        <button className="bg-orange-500 px-6 py-3 rounded-md hover:bg-orange-600 text-white">
           Subscribe
         </button>
       </div>
@@ -154,7 +175,6 @@ export default function BlogPage() {
       <BlogHero />
       <FeaturedBlog />
       <BlogGrid />
-
       <BlogCTA />
     </>
   );

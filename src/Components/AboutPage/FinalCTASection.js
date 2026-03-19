@@ -7,9 +7,12 @@ export function AboutCTA() {
       <p className="text-gray-600 mb-8">
         Learn. Grow. Succeed. India's youth deserves better opportunities—start your journey with us today.
       </p>
-      <button className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-semibold">
+      <a
+        href="/jobs"
+        className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-semibold inline-block transition"
+      >
         Explore Opportunities
-      </button>
+      </a>
     </section>
   );
 }

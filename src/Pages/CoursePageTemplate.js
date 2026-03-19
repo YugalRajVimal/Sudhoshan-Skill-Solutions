@@ -15,32 +15,50 @@ const CoursePageTemplate = ({ course }) => {
 
       {/* HERO */}
 
-      <section className="bg-blue-900 text-white py-20 text-center px-6">
+      <section
+        className="relative bg-gradient-to-br from-blue-900 via-blue-700 to-blue-500 text-white py-20 text-center px-6 overflow-hidden"
+        style={{
+          backgroundImage: 'linear-gradient(to bottom right, #1e3a8a, #2563eb, #3b82f6)',
+          backgroundPosition: "center center",
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "cover",
+        }}
+      >
+        {/* Decorative background image overlay */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none select-none absolute inset-0 w-full h-full z-0"
+          style={{
+            backgroundImage: 'url("/bg.png")',
+            backgroundPosition: "center center",
+            backgroundRepeat: "no-repeat",
+            backgroundSize: "cover",
+            WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 90%)",
+            maskImage: "linear-gradient(to right, transparent 50%, black 90%)",
+          }}
+        />
 
-        <h1 className="text-4xl font-bold mb-4">
-          {course.title}
-        </h1>
+        <div className="relative z-10">
+          <h1 className="text-4xl font-bold font-serif mb-4">
+            {course.title}
+          </h1>
 
-        <p className="text-orange-400 font-semibold mb-6">
-          {course.tagline}
-        </p>
+          <p className="text-orange-400 font-semibold mb-6">
+            {course.tagline}
+          </p>
 
-        <div className="flex justify-center gap-6 text-sm flex-wrap">
-
-          <span className="bg-white/20 px-4 py-2 rounded">
-            Duration: {course.duration}
-          </span>
-
-          <span className="bg-white/20 px-4 py-2 rounded">
-            Mode: {course.mode}
-          </span>
-
-          <span className="bg-white/20 px-4 py-2 rounded">
-            Fee: {course.fee}
-          </span>
-
+          <div className="flex justify-center gap-6 text-sm flex-wrap">
+            <span className="bg-white/20 px-4 py-2 rounded">
+              Duration: {course.duration}
+            </span>
+            <span className="bg-white/20 px-4 py-2 rounded">
+              Mode: {course.mode}
+            </span>
+            <span className="bg-white/20 px-4 py-2 rounded">
+              Fee: {course.fee}
+            </span>
+          </div>
         </div>
-
       </section>
 
 

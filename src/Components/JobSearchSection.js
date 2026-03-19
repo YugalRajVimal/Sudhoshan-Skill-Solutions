@@ -47,9 +47,7 @@ export default function JobSearchSection() {
         </h2>
 
         <p className="text-lg text-blue-100 mb-12 max-w-2xl mx-auto">
-          Discover opportunities through Sudhosan Skill Solutions — connecting
-          talent with employers across India through training, career guidance,
-          and placement support.
+          Your skills deserve the right stage — we find it for you
         </p>
 
         {/* Search Box */}

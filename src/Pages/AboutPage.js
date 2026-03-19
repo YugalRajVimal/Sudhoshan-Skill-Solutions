@@ -11,9 +11,9 @@ export default function AboutPage() {
       <>
         <AboutHero/>
         <OurMission />
-        <OurImpact />
+
         <Leadership />
-<TestimonialSection />
+
         <AboutCTA />
       </>
     );

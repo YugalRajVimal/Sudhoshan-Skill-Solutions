@@ -83,8 +83,7 @@ export default function ContactPage() {
               <FormField label="Email Address" type="email" placeholder="example@email.com" />
               {/* Phone */}
               <FormField label="Phone Number" type="tel" placeholder="+91 XXXXX XXXXX" />
-              {/* Resume Upload */}
-              <FormField label="Upload Resume" type="file" />
+
               {/* Message */}
               <div>
                 <label className="text-sm text-gray-600 font-medium mb-1 block">

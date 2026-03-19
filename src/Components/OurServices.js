@@ -19,6 +19,8 @@ export default function ServicesSection() {
         "Resume Building Support",
         "Interview Preparation",
         "Skill Training Programs",
+        "Career Readiness Coaching",
+        "Digital Literacy Training",
       ],
       color: "border-orange-500",
       iconBg: "bg-orange-100",
@@ -27,10 +29,13 @@ export default function ServicesSection() {
       icon: <FaUserGraduate />,
       title: "For Students",
       items: [
-        "Education & Skill Training",
-        "Career Counselling",
         "Admission Guidance",
         "Education Planning",
+        "Personalized Career Counselling",
+        "Skill Development Courses",
+        "Campus Placement Support",
+        "Digital Learning Access",
+        "Education & Skill Training",
       ],
       color: "border-blue-600",
       iconBg: "bg-blue-100",
@@ -39,77 +44,54 @@ export default function ServicesSection() {
       icon: <FaBuilding />,
       title: "For Businesses",
       items: [
-        "Corporate Training",
-        "Staffing & Recruitment",
-        "Workforce Development",
-        "Industry Partnerships",
+        "Staffing & Recruitment Support",
+        "Corporate Training Programs",
+        "Workforce & Manpower Development",
+        "Data & Information Services",
+        "Digital Platform Solutions",
+        "CSR Training Programs",
       ],
       color: "border-orange-500",
       iconBg: "bg-indigo-100",
     },
-  ];
-
-  const otherServices = [
-    {
-      icon: <FaGraduationCap />,
-      title: "Education & Skill Training",
-      desc: "Industry-aligned certification programs and skill development courses.",
-      color: "text-indigo-600",
-      iconBg: "bg-indigo-100",
-    },
-    {
-      icon: <FaUserTie />,
-      title: "Career Guidance",
-      desc: "Personalized counselling, aptitude tests, and career planning.",
-      color: "text-blue-600",
-      iconBg: "bg-blue-100",
-    },
-    {
-      icon: <FaChalkboardTeacher />,
-      title: "Corporate Training",
-      desc: "Upskilling programs designed for companies and organizations.",
-      color: "text-orange-500",
-      iconBg: "bg-orange-100",
-    },
-    {
-      icon: <FaLaptopCode />,
-      title: "Digital Platforms",
-      desc: "Web portals, LMS platforms, and digital education infrastructure.",
-      color: "text-green-600",
-      iconBg: "bg-green-100",
-    },
     {
       icon: <FaHandshake />,
-      title: "Franchise & Partnerships",
-      desc: "Collaborative initiatives, franchising, and institutional partnerships.",
-      color: "text-purple-600",
-      iconBg: "bg-purple-100",
+      title: "Partnerships",
+      items: [
+        "College & University Tie-Ups & Placement Support",
+        "Industry Partnerships",
+        "Franchise Opportunities",
+        "Govt. Scheme Integration",
+        "CSR & NGO Collaboration",
+        "Referral & Commission Model",
+      ],
+      color: "border-blue-400",
+      iconBg: "bg-orange-50",
     },
   ];
+
+
 
   return (
     <section className="relative py-24 ">
       {/* <div className="absolute top-0 left-0 w-full h-36 bg-gradient-to-r from-orange-100 via-blue-100 to-transparent opacity-70 pointer-events-none -z-10 rounded-b-3xl"></div> */}
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-6xl mx-auto px-6">
         {/* Heading */}
         <div className="text-center mb-20">
           <p className="text-orange-500 font-bold tracking-wider uppercase text-sm">
-            Our Services
+          What We Offer
           </p>
           <h2 className="font-serif text-4xl md:text-5xl font-extrabold text-gray-800 mt-3 leading-snug drop-shadow">
-            Empowering Careers Through{" "}
-            <span className="bg-gradient-to-r from-orange-400 to-blue-600 bg-clip-text text-transparent">
-              Skills & Opportunities
-            </span>
+          Our Services & Solutions
+
           </h2>
           <p className="text-gray-600 mt-4 max-w-2xl mx-auto text-lg md:text-xl">
-            Sudhosan Skill Solutions bridges education and employment through
-            industry-aligned training, career guidance, and workforce solutions.
+          One Stop platform. Every opportunity. Your next step starts here.
           </p>
         </div>
 
         {/* Top Major Cards */}
-        <div className="grid md:grid-cols-3  gap-10 mb-20">
+        <div className="grid md:grid-cols-2  gap-10 mb-20">
           {majorServices.map((service, index) => (
             <div
               key={index}
@@ -142,27 +124,7 @@ export default function ServicesSection() {
           ))}
         </div>
 
-        {/* Other Services */}
-        <div className="flex flex-wrap justify-center gap-8">
-          {otherServices.map((service, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-2xl p-7 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center w-full md:w-[45%] lg:w-[28%] max-w-xs relative group border border-gray-100 hover:border-blue-200"
-            >
-              <div
-                className={`flex items-center justify-center w-12 h-12 ${service.iconBg} rounded-lg mb-4 shadow group-hover:scale-110 transition`}
-              >
-                <span className={`text-xl ${service.color}`}>{service.icon}</span>
-              </div>
-              <h4 className="font-semibold text-lg text-gray-800 mb-1 tracking-tight group-hover:text-blue-600 transition">
-                {service.title}
-              </h4>
-              <p className="text-gray-600 text-[15px]">{service.desc}</p>
-              {/* Gradient border on hover */}
-              <div className="absolute inset-0 rounded-2xl pointer-events-none transition ring-2 ring-transparent group-hover:ring-blue-200"></div>
-            </div>
-          ))}
-        </div>
+   
       </div>
       {/* Subtle wave/shape divider bottom */}
       <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none z-0">

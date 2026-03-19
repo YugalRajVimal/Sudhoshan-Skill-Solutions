@@ -14,6 +14,7 @@ const QUICK_LINKS = [
   { label: "Home", href: "/" },
   { label: "About Us", href: "/about" },
   { label: "Services", href: "/services" },
+  { label: "Cources", href: "/courses" },
   { label: "Jobs", href: "/jobs" },
   { label: "Partners", href: "/partners" },
   { label: "Blogs", href: "/blogs" },
@@ -47,44 +48,37 @@ export default function Footer() {
   return (
     <footer className="bg-[#1e3a8a] text-white">
 
-      <div className=" w-full py-4 px-4 flex justify-center border-b border-blue-700">
+      <div className="w-full py-4 px-4 flex justify-center border-b border-blue-700">
         <div className="max-w-5xl w-full text-center">
           <p className="text-blue-100 text-sm md:text-base leading-relaxed">
             <span className="font-semibold text-white">
-              Registered by Govt. of India, Ministry of Corporate Affairs (MCA)
+              Registered with Ministry of Corporate Affairs (MCA) Under Section 8 of the Company Act 2013.&nbsp;
             </span>
-            <span className="mx-1 hidden sm:inline" aria-hidden="true">|</span>
             <br className="inline sm:hidden" />
-            Under Section 8, Company Act 2013. <br className="inline md:hidden" />
             <span className="block sm:inline">
-              <span className="font-medium">Registration No.:</span> <span className="text-blue-200">xxxxxxxxxxxxxxxxxxxx</span>
-              <span className="mx-1 hidden sm:inline" aria-hidden="true">|</span>
-              <span className="ml-0 sm:ml-2">An ISO <span className="font-semibold">9001:2015</span> Certified</span>
-              <span className="mx-1 hidden sm:inline" aria-hidden="true">|</span>
-              Regd. with <span className="font-semibold">MSME</span>
-              <span className="mx-1 hidden sm:inline" aria-hidden="true">|</span>
-              Tax Exemption Under <span className="font-semibold">80G</span> &amp; <span className="font-semibold">12AA</span> of Income Tax Act, 1961
+              <span className="font-medium">Registration No.:</span>
+              <span className="text-blue-200">&nbsp;U85499BR2025PTC080237</span>,&nbsp;
+              Registered. with <span className="font-semibold">MSME</span> (Udyam Registration) and Startup India Recognized — DPIIT, Govt. of India
             </span>
           </p>
         </div>
       </div>
-      <div className=" mx-auto px-6 py-16 grid md:grid-cols-2 lg:grid-cols-4 gap-10">
+      <div className=" mx-auto px-6 py-6 grid md:grid-cols-2 lg:grid-cols-4 gap-10">
         {/* Company Info */}
         <div>
+          
           <img
             src="/logo.png"
             alt="Sudhosan Skill Solutions Logo"
-            className="h-14 w-14 bg-white object-contain rounded mb-4"
+            className="h-14 w-14 mx-auto bg-white object-contain rounded mb-4"
           />
           {/* Main heading uses font-serif */}
-          <h2 className="text-2xl font-bold mb-3 font-serif">Sudhosan Skill Solutions</h2>
-          <p className="text-sm text-blue-200 mb-4">
+          <h2 className="text-2xl font-bold font-serif text-[#FF7A00]">Sudhosan Skill Solutions</h2>
+          <p className="text-xs hidden md:block text-center w-full mb-4" style={{ color: "#FFFFFF" }}>
             DREAM | DISCOVER | DELIVER
           </p>
           <p className="text-blue-100 text-sm leading-relaxed">
-            Sudhosan Skill Solutions Pvt. Ltd. bridges the gap between
-            education and employment through industry-aligned training,
-            career guidance, and direct placement support across India.
+          Sudhosan Skill Solutions Pvt. Ltd. bridges the gap between education and employment through industry-aligned training, career guidance, and direct placement support across India.
           </p>
         </div>
 

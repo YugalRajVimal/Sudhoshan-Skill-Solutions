@@ -1,11 +1,46 @@
 import { FaBriefcase, FaUserGraduate, FaChartLine, FaUsers } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 export default function HeroSection() {
   return (
-    <section className="relative bg-gradient-to-br from-blue-900 via-blue-700 to-blue-500 text-white overflow-hidden pb-20 ">
+    <section
+      className="relative bg-gradient-to-br from-blue-900 via-blue-700 to-blue-500 text-white overflow-hidden"
+      style={{
+        backgroundImage: 'linear-gradient(to bottom right, #1e3a8a, #2563eb, #3b82f6)', // fallback gradient
+        backgroundPosition: "center center",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+      }}
+    >
+      {/* Left-to-right fade image overlay */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none select-none absolute inset-0 w-full h-full z-0"
+        style={{
+          backgroundImage: 'url("/bg.png")',
+          backgroundPosition: "center center",
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "cover",
+          // Fade with left-to-right alpha mask, opacity 0 at left, 1 at right
+          WebkitMaskImage:
+            "linear-gradient(to right, transparent 0%, black 90%)",
+          maskImage: "linear-gradient(to right, transparent 50%, black 90%)",
+        }}
+      />
+
+      {/* Optional: Absolute image layer if you'd rather use an <img> overlay instead of CSS bg-image */}
+      {/* 
+      <img
+        src="/bg.png"
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none select-none absolute inset-0 w-full h-full object-cover opacity-70"
+        style={{zIndex: 0}}
+      />
+      */}
 
       {/* Hero Content */}
-      <div className="max-w-7xl mx-auto px-6 py-28 text-center">
+      <div className="max-w-7xl mx-auto px-6 py-28 text-center relative z-10">
 
         {/* Tagline */}
         <p className="text-orange-400 font-semibold tracking-widest mb-4">
@@ -20,28 +55,37 @@ export default function HeroSection() {
 
         {/* Description */}
         <p className="max-w-3xl mx-auto text-lg md:text-xl text-blue-100 mb-10">
-          Sudhosan Skill Solutions bridges the gap between education and employment 
-          through industry-aligned training, career guidance, and direct placement 
-          opportunities — empowering students and professionals across emerging cities in India.
+        Sudhosan Skill Solutions connects students, job seekers, and professionals with industry-aligned training, direct placement support, and college admission guidance — building careers that last, across emerging cities in India.
         </p>
 
         {/* CTA Buttons */}
         <div className="flex flex-wrap justify-center gap-4 mb-14">
 
-          <button className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 px-6 py-3 rounded-lg font-semibold shadow-lg transition">
+          <Link
+            to="/jobs"
+            className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 px-6 py-3 rounded-lg font-semibold shadow-lg transition"
+          >
             <FaBriefcase />
-            Find a Job
-          </button>
+            Explore Jobs
+          </Link>
 
-          <button className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 px-6 py-3 rounded-lg font-semibold shadow-lg transition">
+          <Link
+            to="/courses"
+            className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 px-6 py-3 rounded-lg font-semibold shadow-lg transition"
+          >
+            <FaChartLine />
+            Explore Courses
+          </Link>
+
+          <button className="flex items-center gap-2 bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold shadow-lg transition">
             <FaUserGraduate />
-            Explore Cources
+            Get Admission
           </button>
 
         </div>
 
         {/* Statistics */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
+        {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
 
           <div className="bg-white/10 backdrop-blur-md rounded-lg p-4">
             <FaUsers className="text-orange-400 text-2xl mx-auto mb-2" />
@@ -67,14 +111,16 @@ export default function HeroSection() {
             <p className="text-sm text-blue-100">Cities Served</p>
           </div>
 
-        </div>
+        </div> */}
 
       </div>
 
       {/* Bottom Wave Shape */}
-      <div className="absolute -bottom-[2px] left-0 w-screen overflow-hidden leading-none">
-      <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="white"></path></svg>
-      </div>
+      {/* <div className="absolute -bottom-[2px] left-0 w-screen overflow-hidden leading-none z-20">
+        <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="white"></path>
+        </svg>
+      </div> */}
 
     </section>
   );

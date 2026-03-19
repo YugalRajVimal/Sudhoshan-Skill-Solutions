@@ -75,14 +75,13 @@ export default function TestimonialSection() {
             className="text-4xl font-bold font-serif mb-4"
             style={{ color: COLORS.brandBlue }}
           >
-            Testimonials
+Why are we the most trusted brand?
           </h2>
           <p
             className="max-w-xl mx-auto text-lg"
             style={{ color: COLORS.textLight }}
           >
-            Hear from students and professionals who transformed their careers
-            through Sudhosan Skill Solutions.
+            Here's what our students, candidates, and partners say about us.
           </p>
         </div>
 
