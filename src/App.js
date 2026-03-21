@@ -54,9 +54,50 @@ function LoaderPage() {
           gap: '24px',
         }}
       >
-        <svg className="animate-spin" style={{ width: 52, height: 52, color: "#198754" }} fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="#E3E9F2" strokeWidth="4"></circle>
-          <path className="opacity-75" fill="#198754" d="M4 12a8 8 0 018-8v4l3-3-3-3v4A8 8 0 104 12z" />
+        {/* Loader with blue/orange gradient accent */}
+        <svg
+          style={{
+            width: 60,
+            height: 60,
+            display: "block",
+            filter: "drop-shadow(0 2px 8px #e3e9f266)"
+          }}
+          viewBox="0 0 50 50"
+        >
+          <defs>
+            <linearGradient id="loader-gradient-blueorange" x1="1" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#0072ff" stopOpacity="1" />
+              <stop offset="70%" stopColor="#FF7A00" stopOpacity="1" />
+            </linearGradient>
+          </defs>
+          <circle
+            cx="25"
+            cy="25"
+            r="20"
+            fill="none"
+            stroke="#E3E9F2"
+            strokeWidth="6"
+          />
+          <path
+            d="M25 7
+              a 18 18 0 0 1 0 36
+              a 18 18 0 0 1 0 -36"
+            fill="none"
+            stroke="url(#loader-gradient-blueorange)"
+            strokeWidth="6"
+            strokeLinecap="round"
+            strokeDasharray="85"
+            strokeDashoffset="15"
+          >
+            <animateTransform
+              attributeName="transform"
+              type="rotate"
+              from="0 25 25"
+              to="360 25 25"
+              dur="0.9s"
+              repeatCount="indefinite"
+            />
+          </path>
         </svg>
         <span style={{ fontWeight: 600, color: '#222', fontSize: 18 }}>Loading...</span>
         <span style={{ color: '#999', fontSize: 13 }}>Fetching the latest data.</span>
