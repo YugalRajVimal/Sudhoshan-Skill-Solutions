@@ -193,6 +193,34 @@ export default function GetAdmissionPage() {
                 // Management
                 { label: "— Management —", value: "", disabled: true },
                 { label: "MBA (Master of Business Administration)", value: "MBA (Master of Business Administration)" },
+                { label: "BBA (Bachelor of Business Administration)", value: "BBA (Bachelor of Business Administration)" },
+                { label: "PGDM (Post Graduate Diploma in Management)", value: "PGDM (Post Graduate Diploma in Management)" },
+                { label: "BMS (Bachelor of Management Studies)", value: "BMS (Bachelor of Management Studies)" },
+
+                // Commerce & Finance
+                { label: "— Commerce & Finance —", value: "", disabled: true },
+                { label: "B.Com (Bachelor of Commerce)", value: "B.Com (Bachelor of Commerce)" },
+                { label: "M.Com (Master of Commerce)", value: "M.Com (Master of Commerce)" },
+                { label: "Banking & Finance Course", value: "Banking & Finance Course" },
+
+                // Engineering & IT
+                { label: "— Engineering & IT —", value: "", disabled: true },
+                { label: "BCA (Bachelor of Computer Applications)", value: "BCA (Bachelor of Computer Applications)" },
+                { label: "MCA (Master of Computer Applications)", value: "MCA (Master of Computer Applications)" },
+                { label: "B.Tech / B.E. (Computer Science / IT)", value: "B.Tech / B.E. (Computer Science / IT)" },
+                { label: "B.Tech / B.E. (Mechanical / Civil / Electrical)", value: "B.Tech / B.E. (Mechanical / Civil / Electrical)" },
+                { label: "Polytechnic / Diploma Engineering", value: "Polytechnic / Diploma Engineering" },
+                { label: "ITI (Industrial Training Institute)", value: "ITI (Industrial Training Institute)" },
+
+                // Art, Science & Education
+                { label: "— Art, Science & Education —", value: "", disabled: true },
+                { label: "B.A. (Bachelor of Arts)", value: "B.A. (Bachelor of Arts)" },
+                { label: "B.Sc. (Bachelor of Science)", value: "B.Sc. (Bachelor of Science)" },
+                { label: "M.A. / M.Sc.", value: "M.A. / M.Sc." },
+                { label: "B.Ed. / D.El.Ed. (Teacher Training)", value: "B.Ed. / D.El.Ed. (Teacher Training)" },
+                { label: "Law — LLB / LLM", value: "Law — LLB / LLM" },
+
+              
               ];
               return (
                 <div>
