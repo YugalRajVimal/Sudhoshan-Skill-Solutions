@@ -178,7 +178,7 @@ export default function JobsPage({ allData }) {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-10 sm:mb-14">
           <h1 className="text-3xl sm:text-4xl font-bold text-blue-900 font-serif">
-            Latest Job Openings
+            Latest <span className="text-orange-500">Job Openings</span>
           </h1>
           <p className="text-gray-600 mt-3 text-sm sm:text-base">
             Discover career opportunities through Sudhosan Skill Solutions

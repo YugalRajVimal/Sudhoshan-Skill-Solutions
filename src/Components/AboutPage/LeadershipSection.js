@@ -64,7 +64,7 @@ export function Leadership() {
     <section className="py-20 bg-gray-50 px-6">
       <div className="max-w-6xl mx-auto text-center">
         <h2 className="font-serif text-3xl font-bold mb-4">
-          Meet Our Leadership
+          Meet Our <span className="text-orange-500">Leadership</span>
         </h2>
         <p className="text-gray-500 mb-12">
           The Minds Behind the Mission United by one vision — building India's most impactful career platform.

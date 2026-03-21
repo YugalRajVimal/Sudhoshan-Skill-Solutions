@@ -54,7 +54,7 @@ export default function HomeBlogsSection() {
         {/* Section Header */}
         <div className="text-center mb-14">
           <h2 className="text-3xl font-bold font-serif mb-4">
-            Latest Insights
+            Latest <span className="text-orange-500">Insights</span>
           </h2>
           <p className="text-gray-600 max-w-xl mx-auto">
             Career tips, job market insights, and skill development

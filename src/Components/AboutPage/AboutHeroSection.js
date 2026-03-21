@@ -26,7 +26,7 @@ export default function AboutHero() {
       {/* Hero Content */}
       <div className="max-w-7xl mx-auto text-center relative z-10">
         <h1 className="font-serif text-4xl md:text-5xl font-bold mb-6">
-          Sudhosan Skill Solutions Pvt. Ltd.
+          <span className="text-orange-400">Sudhosan Skill Solutions </span> Pvt. Ltd.
         </h1>
         <p className="text-lg md:text-xl text-blue-100 max-w-5xl mx-auto">
           Education, skill development, and career placement for Tier 2 &amp; 3 cities.<br />

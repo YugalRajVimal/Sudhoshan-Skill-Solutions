@@ -84,13 +84,15 @@ export default function TestimonialSection() {
         <div className="text-center mb-16">
           <h2
             className="text-4xl font-bold font-serif mb-4"
-            style={{ color: COLORS.brandBlue }}
+            
           >
-            Why are we the most trusted brand?
+            Why are we the&nbsp;
+            <span className="text-orange-500 font-bold">most trusted</span>
+            &nbsp;brand?
           </h2>
           <p
             className="max-w-xl mx-auto text-lg"
-            style={{ color: COLORS.textLight }}
+
           >
             Here's what our students, candidates, and partners say about us.
           </p>

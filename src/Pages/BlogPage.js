@@ -45,7 +45,7 @@ function BlogHero() {
 
       <div className="relative z-10">
         <h1 className="text-4xl font-bold font-serif mb-4">
-          Sudhosan Insights
+        Sudhosan <span className="text-orange-500">Insights</span> 
         </h1>
         <p className="max-w-2xl mx-auto text-blue-100">
           Discover career guidance, skill development insights, job market trends, and opportunities to build a successful future.
