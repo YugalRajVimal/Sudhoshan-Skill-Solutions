@@ -99,7 +99,7 @@ export default function Navbar({ allData }) {
           aria-label="Main navigation"
         >
           <div
-            className="flex justify-between items-center w-full max-w-[1440px] px-6 py-4"
+            className="flex justify-between items-center w-full max-w-[1440px] px-2 md:px-6 py-4"
             style={{ height: NAVBAR_HEIGHT }}
           >
             {/* Logo */}
