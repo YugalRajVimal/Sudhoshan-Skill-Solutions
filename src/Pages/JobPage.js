@@ -1,30 +1,143 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt, FaBriefcase, FaRupeeSign, FaFilter } from "react-icons/fa";
 
-// Filter group definitions
-const LOCATIONS = ["Patna", "Delhi", "Remote"];
-const SALARY_RANGES = ["0-3 LPA", "3-6 LPA", "6-10 LPA", "10+ LPA"];
-const ROLES = ["IT", "HR", "Sales", "Marketing"];
+// Utility to parse query parameters
+function useQuery() {
+  const { search } = useLocation();
+  return React.useMemo(() => new URLSearchParams(search), [search]);
+}
+
+function getUniqueFromJobs(jobs, key, valueMap = null) {
+  const set = new Set();
+  jobs.forEach(job => {
+    let val = job[key];
+    if (Array.isArray(val)) {
+      val.forEach(v => set.add(valueMap ? valueMap(v) : v));
+    } else if (typeof val === "string" && val.trim()) {
+      set.add(valueMap ? valueMap(val) : val);
+    }
+  });
+  return Array.from(set).filter(Boolean);
+}
+
+function getUniqueSalaryRanges(jobs) {
+  const salaryRangesSet = new Set();
+  jobs.forEach(job => {
+    let val = job.salaryRange || job.salary;
+    if (!val) return;
+    if (
+      val.includes("LPA") &&
+      (
+        val.includes("0-3") ||
+        val.includes("3-6") ||
+        val.includes("6-10") ||
+        val.includes("10+") ||
+        val.includes("10 - ") || val.includes("10 +")
+      )
+    ) {
+      salaryRangesSet.add(val.trim());
+    } else {
+      const match = val.match(/(\d+(\.\d+)?)/g);
+      if (match) {
+        const num = parseFloat(match[0]);
+        if (num < 3) salaryRangesSet.add("0-3 LPA");
+        else if (num < 6) salaryRangesSet.add("3-6 LPA");
+        else if (num < 10) salaryRangesSet.add("6-10 LPA");
+        else salaryRangesSet.add("10+ LPA");
+      }
+    }
+  });
+  const canonicalOrder = ["0-3 LPA", "3-6 LPA", "6-10 LPA", "10+ LPA"];
+  const found = Array.from(salaryRangesSet);
+  found.sort((a, b) => canonicalOrder.indexOf(a) - canonicalOrder.indexOf(b));
+  return found;
+}
 
 export default function JobsPage({ allData }) {
   const jobs = allData?.jobs ?? [];
+
+  const query = useQuery();
+  const navigate = useNavigate();
+
+  const LOCATIONS = useMemo(
+    () => getUniqueFromJobs(jobs, "location", loc => loc && loc.trim()),
+    [jobs]
+  );
+  const SALARY_RANGES = useMemo(() => getUniqueSalaryRanges(jobs), [jobs]);
+  const ROLES = useMemo(
+    () => getUniqueFromJobs(jobs, "role", role => role && role.trim()),
+    [jobs]
+  );
 
   const [selectedLocations, setSelectedLocations] = useState([]);
   const [selectedSalaryRanges, setSelectedSalaryRanges] = useState([]);
   const [selectedRoles, setSelectedRoles] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState(jobs);
-
-  // Toggle for mobile filters
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
-  useEffect(() => {
-    // Reset the filtered jobs whenever the jobs prop changes
-    setFilteredJobs(jobs);
-  }, [jobs]);
+  // Modal state for apply form
+  const [showApplyModal, setShowApplyModal] = useState(false);
+  const [selectedJobForApply, setSelectedJobForApply] = useState(null);
 
-  const handleApplyFilters = () => {
+  // Sync state with URL query on mount or when url changes
+  useEffect(() => {
+    const locationParam = query.get("location");
+    const titleParam = query.get("title");
+    const categoryParam = query.get("category");
+
+    if (locationParam) {
+      setSelectedLocations(
+        locationParam
+          .split(",")
+          .filter(loc => !!loc && LOCATIONS.includes(loc))
+      );
+    }
+    if (categoryParam) {
+      setSelectedRoles(
+        categoryParam
+          .split(",")
+          .filter(role => !!role && ROLES.includes(role))
+      );
+    }
+
     let result = jobs;
 
+    if (locationParam) {
+      result = result.filter(job =>
+        locationParam
+          .split(",")
+          .some(loc =>
+            (job.location || "").toLowerCase().includes(loc.toLowerCase())
+          )
+      );
+    }
+    if (categoryParam) {
+      result = result.filter(job =>
+        categoryParam
+          .split(",")
+          .map(r => r.trim())
+          .includes(job.role)
+      );
+    }
+    if (titleParam) {
+      result = result.filter(job =>
+        (job.title || "").toLowerCase().includes(titleParam.toLowerCase())
+      );
+    }
+
+    setFilteredJobs(result);
+
+    // eslint-disable-next-line
+  }, [jobs, query, LOCATIONS, ROLES]);
+
+  const handleApplyFilters = () => {
+    navigate({
+      pathname: "/jobs",
+      search: "",
+    });
+
+    let result = jobs;
     if (selectedLocations.length > 0) {
       result = result.filter(job =>
         selectedLocations.some(loc =>
@@ -32,23 +145,32 @@ export default function JobsPage({ allData }) {
         )
       );
     }
-
     if (selectedSalaryRanges.length > 0) {
-      result = result.filter(job =>
-        selectedSalaryRanges.some(range =>
-          (job.salaryRange ? job.salaryRange : job.salary ?? "").includes(range)
-        )
-      );
+      result = result.filter(job => {
+        const jobSalaryRange = job.salaryRange || job.salary || "";
+        return selectedSalaryRanges.some(range =>
+          jobSalaryRange.includes(range)
+        );
+      });
     }
-
     if (selectedRoles.length > 0) {
       result = result.filter(job =>
         selectedRoles.includes(job.role)
       );
     }
-
     setFilteredJobs(result);
-    setShowMobileFilters(false); // Close mobile filters after applying
+    setShowMobileFilters(false);
+  };
+
+  // Handle open modal with job
+  const openApplyModal = job => {
+    setSelectedJobForApply(job);
+    setShowApplyModal(true);
+  };
+
+  const closeApplyModal = () => {
+    setShowApplyModal(false);
+    setSelectedJobForApply(null);
   };
 
   return (
@@ -76,6 +198,9 @@ export default function JobsPage({ allData }) {
           {showMobileFilters && (
             <div className="mt-4">
               <Filters
+                LOCATIONS={LOCATIONS}
+                SALARY_RANGES={SALARY_RANGES}
+                ROLES={ROLES}
                 selectedLocations={selectedLocations}
                 setSelectedLocations={setSelectedLocations}
                 selectedSalaryRanges={selectedSalaryRanges}
@@ -93,6 +218,9 @@ export default function JobsPage({ allData }) {
         <div className="grid sm:grid-cols-1 md:grid-cols-4 gap-8">
           <div className="hidden sm:block">
             <Filters
+              LOCATIONS={LOCATIONS}
+              SALARY_RANGES={SALARY_RANGES}
+              ROLES={ROLES}
               selectedLocations={selectedLocations}
               setSelectedLocations={setSelectedLocations}
               selectedSalaryRanges={selectedSalaryRanges}
@@ -102,14 +230,23 @@ export default function JobsPage({ allData }) {
               onApply={handleApplyFilters}
             />
           </div>
-          <JobListings jobs={filteredJobs} />
+          <JobListings jobs={filteredJobs} onApplyClick={openApplyModal} />
         </div>
       </div>
+      {/* Modal Popup for Job Application */}
+      <ApplyModal
+        open={showApplyModal}
+        job={selectedJobForApply}
+        onClose={closeApplyModal}
+      />
     </section>
   );
 }
 
 function Filters({
+  LOCATIONS = [],
+  SALARY_RANGES = [],
+  ROLES = [],
   selectedLocations,
   setSelectedLocations,
   selectedSalaryRanges,
@@ -120,7 +257,6 @@ function Filters({
   isMobile = false,
   onClose,
 }) {
-  // Helper to toggle checkbox selections
   const handleCheckboxChange = (setter, selected, value) => {
     if (selected.includes(value)) {
       setter(selected.filter(v => v !== value));
@@ -131,9 +267,7 @@ function Filters({
 
   return (
     <div
-      className={`bg-white rounded-xl shadow-md p-4 sm:p-6 h-fit ${
-        isMobile ? "w-full max-w-md mx-auto" : ""
-      }`}
+      className={`bg-white rounded-xl shadow-md p-4 sm:p-6 h-fit ${isMobile ? "w-full max-w-md mx-auto" : ""}`}
     >
       <div className="flex items-center gap-2 mb-6">
         <FaFilter size={18} className="text-orange-500" />
@@ -154,17 +288,21 @@ function Filters({
       <div className="mb-6">
         <h4 className="font-medium mb-2 font-serif text-sm sm:text-base">Location</h4>
         <div className="space-y-2 text-xs sm:text-sm">
-          {LOCATIONS.map(loc => (
-            <label key={loc} className="flex gap-2 cursor-pointer items-center">
-              <input
-                type="checkbox"
-                checked={selectedLocations.includes(loc)}
-                onChange={() => handleCheckboxChange(setSelectedLocations, selectedLocations, loc)}
-                className="accent-blue-900"
-              />{" "}
-              <span>{loc}</span>
-            </label>
-          ))}
+          {LOCATIONS.length === 0 ? (
+            <div className="text-gray-400">No locations found</div>
+          ) : (
+            LOCATIONS.map(loc => (
+              <label key={loc} className="flex gap-2 cursor-pointer items-center">
+                <input
+                  type="checkbox"
+                  checked={selectedLocations.includes(loc)}
+                  onChange={() => handleCheckboxChange(setSelectedLocations, selectedLocations, loc)}
+                  className="accent-blue-900"
+                />{" "}
+                <span>{loc}</span>
+              </label>
+            ))
+          )}
         </div>
       </div>
 
@@ -172,17 +310,21 @@ function Filters({
       <div className="mb-6">
         <h4 className="font-medium mb-2 font-serif text-sm sm:text-base">Salary Range</h4>
         <div className="space-y-2 text-xs sm:text-sm">
-          {SALARY_RANGES.map(range => (
-            <label key={range} className="flex gap-2 cursor-pointer items-center">
-              <input
-                type="checkbox"
-                checked={selectedSalaryRanges.includes(range)}
-                onChange={() => handleCheckboxChange(setSelectedSalaryRanges, selectedSalaryRanges, range)}
-                className="accent-blue-900"
-              />{" "}
-              <span>{range}</span>
-            </label>
-          ))}
+          {SALARY_RANGES.length === 0 ? (
+            <div className="text-gray-400">No salary ranges found</div>
+          ) : (
+            SALARY_RANGES.map(range => (
+              <label key={range} className="flex gap-2 cursor-pointer items-center">
+                <input
+                  type="checkbox"
+                  checked={selectedSalaryRanges.includes(range)}
+                  onChange={() => handleCheckboxChange(setSelectedSalaryRanges, selectedSalaryRanges, range)}
+                  className="accent-blue-900"
+                />{" "}
+                <span>{range}</span>
+              </label>
+            ))
+          )}
         </div>
       </div>
 
@@ -190,17 +332,21 @@ function Filters({
       <div className="mb-6">
         <h4 className="font-medium mb-2 font-serif text-sm sm:text-base">Job Role</h4>
         <div className="space-y-2 text-xs sm:text-sm">
-          {ROLES.map(role => (
-            <label key={role} className="flex gap-2 cursor-pointer items-center">
-              <input
-                type="checkbox"
-                checked={selectedRoles.includes(role)}
-                onChange={() => handleCheckboxChange(setSelectedRoles, selectedRoles, role)}
-                className="accent-blue-900"
-              />{" "}
-              <span>{role}</span>
-            </label>
-          ))}
+          {ROLES.length === 0 ? (
+            <div className="text-gray-400">No job roles found</div>
+          ) : (
+            ROLES.map(role => (
+              <label key={role} className="flex gap-2 cursor-pointer items-center">
+                <input
+                  type="checkbox"
+                  checked={selectedRoles.includes(role)}
+                  onChange={() => handleCheckboxChange(setSelectedRoles, selectedRoles, role)}
+                  className="accent-blue-900"
+                />{" "}
+                <span>{role}</span>
+              </label>
+            ))
+          )}
         </div>
       </div>
 
@@ -215,13 +361,269 @@ function Filters({
   );
 }
 
-function JobListings({ jobs }) {
+// --- ApplyModal Component ---
+function ApplyModal({ open, job, onClose }) {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
+    resume: null,
+  });
+  const [errors, setErrors] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Reset form on close or job change
+  React.useEffect(() => {
+    setForm({
+      name: "",
+      email: "",
+      phone: "",
+      message: "",
+      resume: null,
+    });
+    setErrors({});
+    setSubmitted(false);
+    setSubmitMessage(null);
+    setSubmitting(false);
+  }, [open, job]);
+
+  if (!open || !job) return null;
+
+  // Required fields: name, email, phone, resume
+  function validate(form) {
+    const e = {};
+    if (!form.name.trim()) e.name = "Name is required";
+    if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email)) e.email = "Valid email required";
+    if (!form.phone.trim() || !/^(\d{10}|\+?\d{11,13})$/.test(form.phone.replace(/\s+/g, ''))) e.phone = "Valid phone is required";
+    if (!form.resume) e.resume = "Resume is required";
+    return e;
+  }
+
+  function handleInputChange(e) {
+    const { name, value, files } = e.target;
+    setForm(prev => ({
+      ...prev,
+      [name]: files ? files[0] : value,
+    }));
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    const v = validate(form);
+    setErrors(v);
+    if (Object.keys(v).length === 0) {
+      setSubmitting(true);
+      setSubmitMessage(null);
+      try {
+        // Compose formData as required by API
+        const formData = new FormData();
+        formData.append("name", form.name.trim());
+        formData.append("email", form.email.trim());
+        formData.append("phone", form.phone.trim());
+        formData.append("message", form.message.trim());
+        formData.append("jobTitle", job.title);
+        formData.append("jobCompany", job.company);
+        formData.append("jobLocation", job.location);
+        formData.append("resume", form.resume);
+
+        // Make the POST call to the backend job-apply route
+        const API_URL = process.env.REACT_APP_API_URL || (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.REACT_APP_API_URL) || "";
+        let apiUrl = (API_URL || "").replace(/\/$/, "") + "/api/job-apply";
+
+        const response = await fetch(apiUrl, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          // Try show error returned from API
+          let msg = "An error occurred while submitting your application.";
+          if (response.headers.get("content-type")?.includes("application/json")) {
+            const payload = await response.json();
+            msg = payload?.error || payload?.message || msg;
+          } else {
+            msg = await response.text() || msg;
+          }
+          setSubmitMessage({ type: "error", text: msg });
+        } else {
+          // Show API success message
+          const payload = await (response.headers.get("content-type")?.includes("application/json") ? response.json() : response.text());
+          let msg = typeof payload === "string"
+            ? payload
+            : (payload?.message || "Your application was submitted successfully.");
+          setSubmitted(true);
+          setSubmitMessage({ type: "success", text: msg });
+          // Optionally auto-close modal after short delay (replace with a callback if you want to update parent or refresh)
+          setTimeout(() => {
+            onClose && onClose();
+          }, 2200);
+        }
+      } catch (err) {
+        setSubmitMessage({ type: "error", text: "An error occurred while submitting your application." });
+      } finally {
+        setSubmitting(false);
+      }
+    }
+  }
+
+  // Handles clicking outside modal to close
+  function handleOverlayClick(e) {
+    if (e.target === e.currentTarget) onClose();
+  }
+
+  return (
+    <div
+      className="fixed z-[100] top-0 left-0 w-full h-full bg-black bg-opacity-40 flex items-center justify-center px-2"
+      onClick={handleOverlayClick}
+      aria-modal="true"
+      role="dialog"
+    >
+      <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 max-w-lg w-full relative">
+        <button
+          className="absolute right-4 top-4 text-2xl font-bold text-gray-800 hover:text-orange-500"
+          aria-label="Close"
+          onClick={onClose}
+          type="button"
+        >
+          ×
+        </button>
+        <h2 className="text-xl sm:text-2xl font-bold mb-1 text-blue-900 font-serif">Apply for {job.title}</h2>
+        <p className="text-sm text-gray-600 mb-4">{job.company} &middot; {job.location}</p>
+        {submitted ? (
+          <div className="text-center py-10 min-h-[48px] text-green-700 font-semibold text-lg">
+            {submitMessage?.text || "Your application has been submitted!"}
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-5" encType="multipart/form-data">
+            <div>
+              <label className="block text-sm text-blue-900 font-medium mb-1">
+                Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                className={`w-full border ${errors.name ? "border-red-500" : "border-gray-300"} px-3 py-2 rounded-md`}
+                type="text"
+                name="name"
+                value={form.name}
+                onChange={handleInputChange}
+                required
+                autoComplete="name"
+                disabled={submitting}
+              />
+              {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+            </div>
+            <div>
+              <label className="block text-sm text-blue-900 font-medium mb-1">
+                Email <span className="text-red-500">*</span>
+              </label>
+              <input
+                className={`w-full border ${errors.email ? "border-red-500" : "border-gray-300"} px-3 py-2 rounded-md`}
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleInputChange}
+                required
+                autoComplete="email"
+                disabled={submitting}
+              />
+              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+            </div>
+            <div>
+              <label className="block text-sm text-blue-900 font-medium mb-1">
+                Phone <span className="text-red-500">*</span>
+              </label>
+              <input
+                className={`w-full border ${errors.phone ? "border-red-500" : "border-gray-300"} px-3 py-2 rounded-md`}
+                type="tel"
+                name="phone"
+                value={form.phone}
+                onChange={handleInputChange}
+                required
+                autoComplete="tel"
+                disabled={submitting}
+              />
+              {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+            </div>
+            <div>
+              <label className="block text-sm text-blue-900 font-medium mb-1">Cover Letter / Message</label>
+              <textarea
+                className="w-full border border-gray-300 px-3 py-2 rounded-md"
+                name="message"
+                value={form.message}
+                onChange={handleInputChange}
+                rows={3}
+                placeholder="(Optional) Brief message or cover letter"
+                disabled={submitting}
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-blue-900 font-medium mb-1">
+                Upload Resume <span className="text-red-500">*</span>
+              </label>
+              <input
+                className={`w-full border ${errors.resume ? "border-red-500" : "border-gray-300"} px-3 py-2 rounded-md`}
+                type="file"
+                name="resume"
+                accept=".pdf,.doc,.docx"
+                onChange={handleInputChange}
+                required
+                disabled={submitting}
+              />
+              {errors.resume && <p className="text-red-500 text-xs mt-1">{errors.resume}</p>}
+            </div>
+            {submitMessage?.type === "error" && (
+              <div className="bg-red-100 text-red-600 text-center rounded-md p-2 text-sm">
+                {submitMessage.text}
+              </div>
+            )}
+            <button
+              className="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-md text-sm sm:text-base font-semibold flex items-center justify-center gap-2"
+              type="submit"
+              disabled={submitting}
+            >
+              {submitting ? (
+                <span>
+                  <svg className="inline-block mr-1 animate-spin" width={20} height={20} viewBox="0 0 50 50">
+                    <circle
+                      cx="25"
+                      cy="25"
+                      r="20"
+                      fill="none"
+                      stroke="#fff"
+                      strokeWidth="5"
+                      opacity="0.5"
+                    />
+                    <path
+                      d="M25 5
+                        a 20 20 0 0 1 0 40
+                        a 20 20 0 0 1 0 -40"
+                      fill="none"
+                      stroke="#fff"
+                      strokeWidth="5"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  Sending...
+                </span>
+              ) : (
+                "Submit Application"
+              )}
+            </button>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function JobListings({ jobs, onApplyClick }) {
   return (
     <div className="col-span-1 md:col-span-3 space-y-5 sm:space-y-6 w-full">
       {jobs.length === 0 ? (
         <div className="text-center text-gray-500 py-10">No jobs found.</div>
       ) : (
-        // Responsive card: stack elements vertically on mobile
         jobs.map((job, i) => (
           <div
             key={i}
@@ -248,7 +650,11 @@ function JobListings({ jobs }) {
                 </div>
               </div>
               <div className="flex justify-end">
-                <button className="mt-2 md:mt-0 bg-orange-500 hover:bg-orange-600 text-white px-4 sm:px-6 py-2 rounded-md text-sm sm:text-base w-full xs:w-auto">
+                <button
+                  className="mt-2 md:mt-0 bg-orange-500 hover:bg-orange-600 text-white px-4 sm:px-6 py-2 rounded-md text-sm sm:text-base w-full xs:w-auto"
+                  onClick={() => onApplyClick && onApplyClick(job)}
+                  type="button"
+                >
                   Apply Now
                 </button>
               </div>

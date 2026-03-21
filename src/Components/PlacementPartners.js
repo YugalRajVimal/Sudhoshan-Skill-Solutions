@@ -245,6 +245,8 @@ export default function PlacementPartners() {
           <span style={{ color: COLORS.accent, fontWeight: 500 }}>Our trusted</span> hiring and institutional partners
         </p>
 
+
+
         {/* Partner Logos One-Line Infinite Marquee */}
         <div
           className="relative w-full overflow-x-hidden mb-16"
@@ -285,16 +287,20 @@ export default function PlacementPartners() {
           </div>
         </div>
 
+        <p className="mt-12" style={{ color: "#FF7A00", fontWeight: 500 }}>
+          ...and many more organizations collaborating with <span style={{ color: COLORS.primary, fontWeight: 700 }}>Sudhosan Skill Solutions</span>
+        </p>
+
         {/* Statistics (Grid for desktop/tablet, Marquee for small screen) */}
         {/* Mobile Marquee Animation */}
-        <div className="w-full overflow-x-hidden mt-6">
+        <div className="block  w-full overflow-x-hidden mt-6">
           <div
             style={{
               display: "flex",
               alignItems: "center",
               width: "max-content",
               minWidth: "100%",
-              animation: "marquee-slide-stats 15s linear infinite",
+              animation: "marquee-slide-stats 30s linear infinite",
             }}
             className="gap-8"
           >
@@ -325,50 +331,93 @@ export default function PlacementPartners() {
           </div>
         </div>
         {/* Desktop/Tablet Grid */}
-        <div className="hidden  grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-6 md:gap-6 text-center mt-8">
-          {stats.map((stat, i) => (
-            <div
-              key={stat.label}
-              className="
-                group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl shadow-lg bg-white/95
-                border border-blue-100 p-4 mx-auto transition-all duration-200 hover:-translate-y-1
-                hover:shadow-xl
-              "
-              style={{
-                minWidth: 180,
-                maxWidth: 180,
-                height: 180,
-                minHeight: 180,
-                maxHeight: 180,
-                boxShadow: "0 6px 30px 0 rgba(11,61,145,0.09)",
-                background: `linear-gradient(140deg, #fff 85%, ${COLORS.gradEnd} 120%)`,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center"
-              }}
-            >
-              <div className="mb-2">{stat.icon}</div>
-              <p className="text-2xl sm:text-3xl font-extrabold mb-1 transition-colors" style={{ color: stat.color }}>
-                {animatedCounts[i]}{stat.valueSuffix}
-              </p>
-              <p className="text-sm font-medium" style={{ color: COLORS.textLight }}>{stat.label}</p>
-              {/* slight glow and accent hover effect */}
-              <span
-                className="absolute left-0 right-0 -bottom-1 h-2 pointer-events-none transition-opacity opacity-0 group-hover:opacity-100"
+        {/* Flex layout with 4 cards on top, remaining at the bottom */}
+        <div className="hidden  flex-col gap-6 text-center mt-8">
+          <div className="flex justify-center gap-6">
+            {stats.slice(0, 4).map((stat, i) => (
+              <div
+                key={stat.label}
+                className="
+                  group relative flex flex-col items-center justify-evenly overflow-hidden rounded-2xl shadow-lg bg-white/95
+                  border border-blue-100 p-4 mx-auto transition-all duration-200 hover:-translate-y-1
+                  hover:shadow-xl
+                "
                 style={{
-                  background:
-                    "radial-gradient(closest-side, #FF7A0055 60%, #fff0 100%)",
-                  filter: "blur(4px)",
+                  minWidth: 180,
+                  maxWidth: 180,
+                  height: 180,
+                  minHeight: 180,
+                  maxHeight: 180,
+                  boxShadow: "0 6px 30px 0 rgba(11,61,145,0.09)",
+                  background: `linear-gradient(140deg, #fff 85%, ${COLORS.gradEnd} 120%)`,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center"
                 }}
-              ></span>
+              >
+                <div className="mb-2">{stat.icon}</div>
+                <p className="text-2xl sm:text-3xl font-extrabold mb-1 transition-colors" style={{ color: stat.color }}>
+                  {animatedCounts[i]}{stat.valueSuffix}
+                </p>
+                <p className="text-sm font-medium" style={{ color: COLORS.textLight }}>{stat.label}</p>
+                {/* slight glow and accent hover effect */}
+                <span
+                  className="absolute left-0 right-0 -bottom-1 h-2 pointer-events-none transition-opacity opacity-0 group-hover:opacity-100"
+                  style={{
+                    background:
+                      "radial-gradient(closest-side, #FF7A0055 60%, #fff0 100%)",
+                    filter: "blur(4px)",
+                  }}
+                ></span>
+              </div>
+            ))}
+          </div>
+          {stats.length > 4 && (
+            <div className="flex justify-evenly gap-6 mt-6">
+              {stats.slice(4).map((stat, i) => (
+                <div
+                  key={stat.label}
+                  className="
+                    group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl shadow-lg bg-white/95
+                    border border-blue-100 p-4  transition-all duration-200 hover:-translate-y-1
+                    hover:shadow-xl
+                  "
+                  style={{
+                    minWidth: 180,
+                    maxWidth: 180,
+                    height: 180,
+                    minHeight: 180,
+                    maxHeight: 180,
+                    boxShadow: "0 6px 30px 0 rgba(11,61,145,0.09)",
+                    background: `linear-gradient(140deg, #fff 85%, ${COLORS.gradEnd} 120%)`,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }}
+                >
+                  <div className="mb-2">{stat.icon}</div>
+                  <p className="text-2xl sm:text-3xl font-extrabold mb-1 transition-colors" style={{ color: stat.color }}>
+                    {animatedCounts[i + 4]}{stat.valueSuffix}
+                  </p>
+                  <p className="text-sm font-medium" style={{ color: COLORS.textLight }}>{stat.label}</p>
+                  {/* slight glow and accent hover effect */}
+                  <span
+                    className="absolute left-0 right-0 -bottom-1 h-2 pointer-events-none transition-opacity opacity-0 group-hover:opacity-100"
+                    style={{
+                      background:
+                        "radial-gradient(closest-side, #FF7A0055 60%, #fff0 100%)",
+                      filter: "blur(4px)",
+                    }}
+                  ></span>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
         {/* Bottom text */}
-        <p className="mt-12" style={{ color: "#FF7A00", fontWeight: 500 }}>
-          ...and many more organizations collaborating with <span style={{ color: COLORS.primary, fontWeight: 700 }}>Sudhosan Skill Solutions</span>
-        </p>
+      
       </div>
     </section>
   );
