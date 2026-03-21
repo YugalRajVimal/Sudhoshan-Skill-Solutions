@@ -1,6 +1,68 @@
+import { useState } from "react";
+import axios from "axios";
 import { FaPhoneAlt, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
 
 export default function ContactPage() {
+  const [form, setForm] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    message: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+
+  function handleChange(e) {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setSubmitted(false);
+
+    // Basic validation
+    if (!form.fullName || !form.email || !form.message) {
+      setError("Please fill out your name, email, and message.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL || ""}/api/contact-us-mail`,
+        form,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      if (res.status === 200) {
+        setSubmitted(true);
+        setForm({
+          fullName: "",
+          email: "",
+          phone: "",
+          message: "",
+        });
+      } else {
+        setError(res.data?.message || "There was an error sending your message.");
+      }
+    } catch (err) {
+      // Prefer message from response if available
+      const errMsg =
+        err.response?.data && typeof err.response.data === "string"
+          ? err.response.data
+          : err.message === "Network Error"
+          ? "Network error. Please try again later."
+          : "There was an error sending your message.";
+      setError(errMsg);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <section className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50 py-12 px-3 sm:py-16 md:py-20 md:px-6">
       <div className="max-w-6xl mx-auto">
@@ -76,31 +138,71 @@ export default function ContactPage() {
             <h2 className="text-xl xs:text-2xl font-bold text-blue-900 mb-5 xs:mb-7 font-serif tracking-tight">
               Send Us a Message
             </h2>
-            <form className="space-y-5 xs:space-y-7">
+            {/* Success state */}
+            {submitted && (
+              <div className="bg-green-100 text-green-800 border border-green-200 px-4 py-2 rounded-md mb-4 text-center font-medium">
+                Thank you for contacting us! Your message was sent successfully.
+              </div>
+            )}
+            {/* Error state */}
+            {error && (
+              <div className="bg-red-100 text-red-800 border border-red-200 px-4 py-2 rounded-md mb-4 text-center font-medium">
+                {error}
+              </div>
+            )}
+            <form className="space-y-5 xs:space-y-7" onSubmit={handleSubmit} autoComplete="off">
               {/* Name */}
-              <FormField label="Full Name" type="text" placeholder="Your Name" />
+              <FormField
+                label="Full Name"
+                type="text"
+                name="fullName"
+                placeholder="Your Name"
+                value={form.fullName}
+                onChange={handleChange}
+              />
               {/* Email */}
-              <FormField label="Email Address" type="email" placeholder="example@email.com" />
+              <FormField
+                label="Email Address"
+                type="email"
+                name="email"
+                placeholder="example@email.com"
+                value={form.email}
+                onChange={handleChange}
+              />
               {/* Phone */}
-              <FormField label="Phone Number" type="tel" placeholder="+91 XXXXX XXXXX" />
-
+              <FormField
+                label="Phone Number"
+                type="tel"
+                name="phone"
+                placeholder="+91 XXXXX XXXXX"
+                value={form.phone}
+                onChange={handleChange}
+              />
               {/* Message */}
               <div>
-                <label className="text-sm text-gray-600 font-medium mb-1 block">
+                <label className="text-sm text-gray-600 font-medium mb-1 block" htmlFor="contact-message">
                   Message
                 </label>
                 <textarea
+                  id="contact-message"
+                  name="message"
                   rows={4}
                   placeholder="How can we help you?"
                   className="w-full border border-blue-200 rounded-md px-4 py-3 shadow-sm mt-1 resize-none focus:ring-2 focus:ring-orange-400 focus:outline-none transition text-sm"
+                  value={form.message}
+                  onChange={handleChange}
+                  required
                 />
               </div>
               {/* Submit */}
               <button
-                className="w-full bg-gradient-to-r from-orange-500 to-blue-900 text-white py-3 rounded-lg font-bold shadow-lg hover:from-blue-900 hover:to-orange-500 transition-colors text-base xs:text-lg tracking-wide"
+                className={`w-full bg-gradient-to-r from-orange-500 to-blue-900 text-white py-3 rounded-lg font-bold shadow-lg hover:from-blue-900 hover:to-orange-500 transition-colors text-base xs:text-lg tracking-wide ${
+                  loading ? "opacity-60 cursor-not-allowed" : ""
+                }`}
                 type="submit"
+                disabled={loading}
               >
-                Submit Inquiry
+                {loading ? "Submitting..." : "Submit Inquiry"}
               </button>
             </form>
             <p className="text-xs xs:text-sm text-gray-400 text-center mt-5 xs:mt-6">
@@ -133,20 +235,26 @@ function ContactInfoItem({ icon, title, content, link }) {
 }
 
 // Standard form field
-function FormField({ label, type, placeholder }) {
+function FormField({ label, type, name, placeholder, value, onChange }) {
   return (
     <div>
-      <label className="text-xs xs:text-sm text-gray-600 font-medium mb-1 block">
+      <label className="text-xs xs:text-sm text-gray-600 font-medium mb-1 block" htmlFor={name}>
         {label}
       </label>
       <input
+        id={name}
+        name={name}
         type={type}
         placeholder={placeholder}
+        value={value}
+        onChange={onChange}
         className={`w-full mt-1 border border-blue-200 rounded-md px-4 py-3 shadow-sm
          text-xs xs:text-sm
          focus:ring-2 focus:ring-orange-400 focus:outline-none transition
          ${type === "file" ? "px-0 py-2 text-gray-500" : ""}
         `}
+        required={type !== "tel"} // only phone is optional
+        autoComplete="off"
       />
     </div>
   );

@@ -77,10 +77,13 @@ export default function HeroSection() {
             Explore Courses
           </Link>
 
-          <button className="flex items-center gap-2 bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold shadow-lg transition">
+          <Link
+            to="/get-admission"
+            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-semibold shadow-lg transition"
+          >
             <FaUserGraduate />
             Get Admission
-          </button>
+          </Link>
 
         </div>
 

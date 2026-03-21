@@ -16,6 +16,11 @@ const COLORS = {
   white: "#FFFFFF",
 };
 
+function getFirstName(fullName) {
+  if (!fullName) return "";
+  return fullName.split(" ")[0].toLowerCase();
+}
+
 export default function TestimonialSection() {
   const testimonials = [
     {
@@ -62,11 +67,17 @@ export default function TestimonialSection() {
     }
   ];
 
+  // Helper to build image path using first name
+  function getProfileImage(name) {
+    const firstName = getFirstName(name);
+    return `/testimonials/${firstName}.jpg`;
+  }
+
+  // Helper to test if a testimonial image exists? For now, always use image path, fallback if error.
+  // You could implement a robust check with useState/useEffect if you need to, but for now fallback to FaUser via img onError
+
   return (
-    <section
-      className="py-24"
-    
-    >
+    <section className="py-24">
       <div className="max-w-[1400px] mx-auto px-6">
 
         {/* Heading */}
@@ -75,7 +86,7 @@ export default function TestimonialSection() {
             className="text-4xl font-bold font-serif mb-4"
             style={{ color: COLORS.brandBlue }}
           >
-Why are we the most trusted brand?
+            Why are we the most trusted brand?
           </h2>
           <p
             className="max-w-xl mx-auto text-lg"
@@ -127,8 +138,20 @@ Why are we the most trusted brand?
 
                 {/* User */}
                 <div className="flex items-center gap-4 mt-auto">
-                  <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center border" style={{ borderColor: COLORS.gradStart }}>
-                    <FaUser className="w-7 h-7 text-gray-400" />
+                  <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center border overflow-hidden" style={{ borderColor: COLORS.gradStart }}>
+                    {/* Profile image with fallback icon */}
+                    <img
+                      src={getProfileImage(item.name)}
+                      alt={item.name}
+                      className="object-cover w-12 h-12 rounded-full"
+                      onError={e => {
+                        e.target.onerror = null;
+                        e.target.style.display = 'none';
+                        e.target.nextSibling && (e.target.nextSibling.style.display='' );
+                      }}
+                      style={{ display: "block" }}
+                    />
+                    <FaUser className="w-7 h-7 text-gray-400" style={{ display: "none" }} />
                   </div>
 
                   <div>

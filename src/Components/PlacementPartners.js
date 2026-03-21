@@ -1,12 +1,20 @@
 import { useEffect, useRef, useState } from "react";
-import { FaBriefcase, FaBuilding, FaMapMarkerAlt, FaUniversity, FaUserGraduate } from "react-icons/fa";
+import {
+  FaBriefcase,
+  FaBuilding,
+  FaMapMarkerAlt,
+  FaUniversity,
+  FaUserGraduate,
+} from "react-icons/fa";
+import { MdVerified } from "react-icons/md";
+import { BsBookmarksFill } from "react-icons/bs";
 
 // Animated Counter hook: Do NOT auto start, you must trigger with `shouldStart`
 function useCountUp(to, duration = 1800, { start = 0, shouldStart = false } = {}) {
   const [count, setCount] = useState(start || 0);
   const rafRef = useRef();
   useEffect(() => {
-    if (!shouldStart) return; // Do NOT start unless told!
+    if (!shouldStart) return;
     let end = typeof to === "number" ? to : parseInt(to, 10);
     let startTime = null;
     const step = (timestamp) => {
@@ -88,10 +96,10 @@ export default function PlacementPartners() {
     }
   ];
 
-  // stat configs: use valueNum and valueSuffix for animation
+  // Updated stats per prompt. Corresponds to spec order!
   const stats = [
     {
-      valueNum: 50, valueSuffix: "+",
+      valueNum: 100, valueSuffix: "+",
       label: "Candidates Placed",
       color: COLORS.accent,
       icon: (
@@ -145,6 +153,28 @@ export default function PlacementPartners() {
       ),
       duration: 1100
     },
+    {
+      valueNum: 100, valueSuffix: "%",
+      label: "Placement Support",
+      color: COLORS.accent,
+      icon: (
+        <span className="inline-block bg-emerald-100 text-emerald-500 rounded-full p-3 mb-2 shadow-sm">
+          <MdVerified className="w-6 h-6" />
+        </span>
+      ),
+      duration: 1250,
+    },
+    {
+      valueNum: 10, valueSuffix: "+",
+      label: "Job-Ready Courses",
+      color: COLORS.accent,
+      icon: (
+        <span className="inline-block bg-pink-100 text-pink-500 rounded-full p-3 mb-2 shadow-sm">
+          <BsBookmarksFill className="w-6 h-6" />
+        </span>
+      ),
+      duration: 1050,
+    },
   ];
 
   // Ref to the section element
@@ -153,24 +183,33 @@ export default function PlacementPartners() {
   const isVisible = useOnScreen(sectionRef, "-100px");
 
   // For animated stats, only start the count when the section is visible
+  // We cannot use Hooks in a map. Use a static series of hook-calls:
   const animatedCount0 = useCountUp(stats[0].valueNum, stats[0].duration, { start: 0, shouldStart: isVisible });
   const animatedCount1 = useCountUp(stats[1].valueNum, stats[1].duration, { start: 0, shouldStart: isVisible });
   const animatedCount2 = useCountUp(stats[2].valueNum, stats[2].duration, { start: 0, shouldStart: isVisible });
   const animatedCount3 = useCountUp(stats[3].valueNum, stats[3].duration, { start: 0, shouldStart: isVisible });
   const animatedCount4 = useCountUp(stats[4].valueNum, stats[4].duration, { start: 0, shouldStart: isVisible });
+  const animatedCount5 = useCountUp(stats[5].valueNum, stats[5].duration, { start: 0, shouldStart: isVisible });
+  const animatedCount6 = useCountUp(stats[6].valueNum, stats[6].duration, { start: 0, shouldStart: isVisible });
   const animatedCounts = [
     animatedCount0,
     animatedCount1,
     animatedCount2,
     animatedCount3,
     animatedCount4,
+    animatedCount5,
+    animatedCount6,
   ];
 
-  // Marquee animation CSS (inline style or could be an external class)
+  // Marquee animation for logos and stats (horizontal, repeat for seamless movement)
   const marqueeAnim = `
     @keyframes marquee-slide {
       0% {transform: translateX(0);}
       100% {transform: translateX(-50%);}
+    }
+    @keyframes marquee-slide-stats {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
     }
   `;
 
@@ -178,6 +217,17 @@ export default function PlacementPartners() {
   const isAwign = (partner) =>
     (partner.logo === "/client/awign.svg" || partner.logo === "/client/awign.png") &&
     partner.name.toLowerCase().includes("awign");
+
+  // Responsive check for mobile
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    function handleResize() {
+      setIsMobile(window.innerWidth < 640);
+    }
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
     <section
@@ -196,7 +246,10 @@ export default function PlacementPartners() {
         </p>
 
         {/* Partner Logos One-Line Infinite Marquee */}
-        <div className="relative w-full overflow-x-hidden mb-16" style={{height: "8rem" /* for vertical center of logos */}}>
+        <div
+          className="relative w-full overflow-x-hidden mb-16"
+          style={{ height: "8rem" }}
+        >
           <div
             style={{
               display: "flex",
@@ -209,7 +262,7 @@ export default function PlacementPartners() {
             className="gap-12"
           >
             {[...partners, ...partners].map((partner, index) => (
-              <div key={index} className="flex flex-col items-center px-10" style={{minWidth: 180}}>
+              <div key={index} className="flex flex-col items-center px-10" style={{ minWidth: 180 }}>
                 {partner.logo ? (
                   <img
                     src={partner.logo}
@@ -220,7 +273,7 @@ export default function PlacementPartners() {
                     }
                     style={{
                       maxWidth: 170,
-                      backgroundColor: isAwign(partner) ? "#1A2534" : undefined, // fallback if custom bg not working
+                      backgroundColor: isAwign(partner) ? "#1A2534" : undefined,
                     }}
                   />
                 ) : (
@@ -232,27 +285,86 @@ export default function PlacementPartners() {
           </div>
         </div>
 
-        {/* Statistics */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 md:gap-8 text-center mt-8">
+        {/* Statistics (Grid for desktop/tablet, Marquee for small screen) */}
+        {/* Mobile Marquee Animation */}
+        <div className="w-full overflow-x-hidden mt-6">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              width: "max-content",
+              minWidth: "100%",
+              animation: "marquee-slide-stats 15s linear infinite",
+            }}
+            className="gap-8"
+          >
+            {[...stats, ...stats].map((stat, i) => (
+              <div
+                key={stat.label + i}
+                className="
+                  flex flex-col items-center rounded-2xl  p-5 mx-auto bg-white/95
+                  border border-orange-100 transition-transform
+                "
+                style={{
+                  minWidth: 175,
+                  maxWidth: 200,
+                  margin: "0 1rem",
+                  // boxShadow: "0 6px 30px 0 rgba(11,61,145,0.09)",
+                  background: `linear-gradient(140deg, #fff 80%, ${COLORS.gradEnd} 200%)`,
+                }}
+              >
+                {stat.icon}
+                <p className="text-xl font-semibold mb-1" style={{ color: stat.color }}>
+                  {/* animatedCount[i%7] is always defined */}
+                  {animatedCounts[i % 7]}
+                  {stat.valueSuffix}
+                </p>
+                <p className="text-xs font-medium" style={{ color: COLORS.textLight }}>{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* Desktop/Tablet Grid */}
+        <div className="hidden  grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-6 md:gap-6 text-center mt-8">
           {stats.map((stat, i) => (
             <div
               key={stat.label}
               className="
-                flex flex-col items-center rounded-xl bg-gradient-to-b from-white/60 to-blue-100/40 shadow hover:shadow-lg p-6 mx-auto
-                transition-all duration-200 hover:-translate-y-1 border border-blue-100
+                group relative flex flex-col items-center justify-center overflow-hidden rounded-2xl shadow-lg bg-white/95
+                border border-blue-100 p-4 mx-auto transition-all duration-200 hover:-translate-y-1
+                hover:shadow-xl
               "
-              style={{ width: 210, minWidth: 180 /* fallback for small screens */ }}
+              style={{
+                minWidth: 180,
+                maxWidth: 180,
+                height: 180,
+                minHeight: 180,
+                maxHeight: 180,
+                boxShadow: "0 6px 30px 0 rgba(11,61,145,0.09)",
+                background: `linear-gradient(140deg, #fff 85%, ${COLORS.gradEnd} 120%)`,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center"
+              }}
             >
-              {stat.icon}
-              <p className="text-2xl sm:text-3xl font-bold mb-1" style={{ color: stat.color }}>
-                {animatedCounts[i]}
-                {stat.valueSuffix}
+              <div className="mb-2">{stat.icon}</div>
+              <p className="text-2xl sm:text-3xl font-extrabold mb-1 transition-colors" style={{ color: stat.color }}>
+                {animatedCounts[i]}{stat.valueSuffix}
               </p>
-              <p className="text-xs sm:text-sm font-medium" style={{ color: COLORS.textLight }}>{stat.label}</p>
+              <p className="text-sm font-medium" style={{ color: COLORS.textLight }}>{stat.label}</p>
+              {/* slight glow and accent hover effect */}
+              <span
+                className="absolute left-0 right-0 -bottom-1 h-2 pointer-events-none transition-opacity opacity-0 group-hover:opacity-100"
+                style={{
+                  background:
+                    "radial-gradient(closest-side, #FF7A0055 60%, #fff0 100%)",
+                  filter: "blur(4px)",
+                }}
+              ></span>
             </div>
           ))}
         </div>
-
         {/* Bottom text */}
         <p className="mt-12" style={{ color: "#FF7A00", fontWeight: 500 }}>
           ...and many more organizations collaborating with <span style={{ color: COLORS.primary, fontWeight: 700 }}>Sudhosan Skill Solutions</span>

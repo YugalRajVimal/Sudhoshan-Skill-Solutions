@@ -1,16 +1,10 @@
 import { useParams } from "react-router-dom";
-
 import CoursePageTemplate from "./CoursePageTemplate";
-import { COURSES_DETAILS } from "../data/CourcesData";
 
-
-export default function CourseDetailsPage() {
-
+export default function CourseDetailsPage({ allData }) {
   const { slug } = useParams();
-
-  const course = COURSES_DETAILS.find(
-    (c) => c.slug === slug
-  );
+  const COURSES_DETAILS = allData?.courses ?? [];
+  const course = COURSES_DETAILS.find((c) => c.slug === slug);
 
   return <CoursePageTemplate course={course} />;
 }

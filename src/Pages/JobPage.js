@@ -1,51 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaMapMarkerAlt, FaBriefcase, FaRupeeSign, FaFilter } from "react-icons/fa";
-
-const jobs = [
-  {
-    title: "Senior Software Developer",
-    company: "TCS",
-    location: "Kanpur (Hybrid)",
-    salary: "₹12 - 18 LPA",
-    salaryRange: "10+ LPA",
-    type: "Full Time",
-    role: "IT",
-  },
-  {
-    title: "Branch Manager",
-    company: "HDFC Bank",
-    location: "Lucknow",
-    salary: "₹8 - 12 LPA",
-    salaryRange: "6-10 LPA",
-    type: "Full Time",
-    role: "Sales",
-  },
-  {
-    title: "Digital Marketing Executive",
-    company: "Vinivine Creations",
-    location: "Kanpur",
-    salary: "₹3 - 5 LPA",
-    salaryRange: "3-6 LPA",
-    type: "Full Time",
-    role: "Marketing",
-  },
-  {
-    title: "HR Generalist",
-    company: "Reliance Retail",
-    location: "Delhi NCR",
-    salary: "₹5 - 8 LPA",
-    salaryRange: "3-6 LPA",
-    type: "Full Time",
-    role: "HR",
-  },
-];
 
 // Filter group definitions
 const LOCATIONS = ["Patna", "Delhi", "Remote"];
 const SALARY_RANGES = ["0-3 LPA", "3-6 LPA", "6-10 LPA", "10+ LPA"];
 const ROLES = ["IT", "HR", "Sales", "Marketing"];
 
-export default function JobsPage() {
+export default function JobsPage({ allData }) {
+  const jobs = allData?.jobs ?? [];
+
   const [selectedLocations, setSelectedLocations] = useState([]);
   const [selectedSalaryRanges, setSelectedSalaryRanges] = useState([]);
   const [selectedRoles, setSelectedRoles] = useState([]);
@@ -54,13 +17,18 @@ export default function JobsPage() {
   // Toggle for mobile filters
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
+  useEffect(() => {
+    // Reset the filtered jobs whenever the jobs prop changes
+    setFilteredJobs(jobs);
+  }, [jobs]);
+
   const handleApplyFilters = () => {
     let result = jobs;
 
     if (selectedLocations.length > 0) {
       result = result.filter(job =>
         selectedLocations.some(loc =>
-          job.location.toLowerCase().includes(loc.toLowerCase())
+          (job.location || "").toLowerCase().includes(loc.toLowerCase())
         )
       );
     }
@@ -68,7 +36,7 @@ export default function JobsPage() {
     if (selectedSalaryRanges.length > 0) {
       result = result.filter(job =>
         selectedSalaryRanges.some(range =>
-          (job.salaryRange ? job.salaryRange : job.salary).includes(range)
+          (job.salaryRange ? job.salaryRange : job.salary ?? "").includes(range)
         )
       );
     }

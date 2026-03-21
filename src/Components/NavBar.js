@@ -2,26 +2,11 @@ import React, { useState, useEffect, useCallback } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import { HiMenu, HiX } from "react-icons/hi";
 import { Link, useLocation } from "react-router-dom";
-import { COURSES_DETAILS } from "../data/CourcesData";
-
-// Simpler course list for dropdowns
-const COURSE_LIST = [
-  "Digital Literacy & Internet Essentials",
-  "Basic Computer Operations",
-  "Job Readiness & Workplace Skills Training",
-  "GST & Accounting Fundamentals",
-  "MS Excel & Data Entry Professional Skills",
-  "Resume Writing & LinkedIn Profile Building",
-  "Interview Preparation & Communication Skills",
-  "Retail Sales & Customer Handling Training",
-  "Customer Support Executive Training",
-  "Office Administration & Front Office Management",
-];
 
 // Height for the navbar, for spacer, etc
 const NAVBAR_HEIGHT = 88;
 
-export default function Navbar() {
+export default function Navbar({ allData }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
   const [coursesOpen, setCoursesOpen] = useState(false);
@@ -53,10 +38,7 @@ export default function Navbar() {
   const handleNavClick = useCallback(
     (opts = {}) => {
       window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-      // Only close menu on mobile
       setMenuOpen(false);
-
-      // Close mobile dropdowns after navigation if specified
       if (opts.closeMobileDropdowns) {
         setMobileServicesOpen(false);
         setMobileCoursesOpen(false);
@@ -65,11 +47,21 @@ export default function Navbar() {
     []
   );
 
+  // Get actual services and courses from allData
+  const services =
+    Array.isArray(allData?.services) && allData.services.length > 0
+      ? allData.services
+      : [];
+  const courses =
+    Array.isArray(allData?.courses) && allData.courses.length > 0
+      ? allData.courses
+      : [];
+
   // Desktop Nav Styles for rounded, non-full and blur when scrolled
   const navbarContainerClass =
     "fixed left-0 top-0 right-0 z-40 flex justify-center pointer-events-none";
   const navbarClass = scrolled
-    ? "pointer-events-auto w-[95%] mt-2 rounded-2xl md:rounded-full shadow-lg transition-all duration-200 backdrop-blur-md bg-blue-900/70"
+    ? "pointer-events-auto w-[97%] mt-2 rounded-2xl md:rounded-full shadow-lg transition-all duration-200 backdrop-blur-md bg-blue-900/70"
     : "pointer-events-auto w-full rounded-none shadow-md transition-all duration-200 bg-[#1e3a8a]";
   const navbarStyle = scrolled
     ? {
@@ -116,21 +108,28 @@ export default function Navbar() {
                 src="/logo.png"
                 alt="Sudhosan Skill Solutions Logo"
                 className="h-16 w-16 bg-white object-contain rounded"
-                style={{ boxShadow: scrolled ? "0px 1px 10px 0px rgba(30,58,138,0.09)" : undefined }}
+                style={{
+                  boxShadow: scrolled
+                    ? "0px 1px 10px 0px rgba(30,58,138,0.09)"
+                    : undefined,
+                }}
               />
-              <div className="w-fit">
-                <h1 className="text-xl font-bold font-serif text-[#FF7A00]">
+              <div className="w-fit whitespace-nowrap">
+                <h1 className="text-xl font-bold font-serif text-[#FF7A00] whitespace-nowrap">
                   Sudhosan Skill Solutions
                 </h1>
-                <p className="text-xs hidden md:block text-center w-full" style={{ color: "#FFFFFF" }}>
+                <p
+                  className="text-xs hidden md:block text-center w-full whitespace-nowrap"
+                  style={{ color: "#FFFFFF" }}
+                >
                   DREAM | DISCOVER | DELIVER
                 </p>
               </div>
             </div>
 
             {/* Desktop Menu and Recruiter Button */}
-            <div className="hidden md:flex items-center gap-8">
-              <ul className="flex items-center gap-8 text-sm font-medium">
+            <div className="hidden lg:flex items-center gap-8">
+              <ul className="flex items-center gap-4 xl:gap-6 text-sm font-medium">
                 <li>
                   <Link
                     to="/"
@@ -155,9 +154,14 @@ export default function Navbar() {
                   onMouseEnter={() => setServicesOpen(true)}
                   onMouseLeave={() => setServicesOpen(false)}
                 >
-                  <div className="flex items-center gap-1 cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors">
+                  <Link
+                    to="/services"
+                    className="flex items-center gap-1 cursor-pointer hover:text-[#FF7A00] text-[#FFFFFF] transition-colors"
+                    onClick={handleNavClick}
+                    tabIndex={0}
+                  >
                     Services <FaChevronDown size={12} />
-                  </div>
+                  </Link>
                   {servicesOpen && (
                     <div
                       className="absolute bottom-100 left-0 bg-white/90 text-[#1F2937] rounded-xl shadow-lg w-60 py-2 z-20 backdrop-blur-md"
@@ -167,52 +171,19 @@ export default function Navbar() {
                         border: "1px solid rgba(30,58,138,0.055)"
                       }}
                     >
-                      <Link
-                        to="/services/education-skill-training"
-                        className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
-                        onClick={handleNavClick}
-                      >
-                        Education & Skill Training
-                      </Link>
-                      <Link
-                        to="/services/employment-placement-staffing"
-                        className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
-                        onClick={handleNavClick}
-                      >
-                        Employment Placement & Staffing
-                      </Link>
-                      <Link
-                        to="/services/career-guidance-advisory"
-                        className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
-                        onClick={handleNavClick}
-                      >
-                        Career Guidance & Advisory
-                      </Link>
-                      <Link
-                        to="/services/corporate-training-programs"
-                        className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
-                        onClick={handleNavClick}
-                      >
-                        Corporate Training Programs
-                      </Link>
-                      <Link
-                        to="/services/digital-platform-it-services"
-                        className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
-                        onClick={handleNavClick}
-                      >
-                        Digital Platforms & IT Services
-                      </Link>
-                      <Link
-                        to="/services/franchise-partnership-consulting"
-                        className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
-                        onClick={handleNavClick}
-                      >
-                        Franchise & Partnership Consulting
-                      </Link>
+                      {services.map((service) => (
+                        <Link
+                          key={service.slug}
+                          to={`/services/${service.slug}`}
+                          className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
+                          onClick={handleNavClick}
+                        >
+                          {service.title}
+                        </Link>
+                      ))}
                     </div>
                   )}
                 </li>
-
                 {/* Courses Dropdown */}
                 <li
                   className="relative"
@@ -227,13 +198,14 @@ export default function Navbar() {
                     Courses <FaChevronDown size={12} />
                   </Link>
                   {coursesOpen && (
-                    <div className="absolute bottom-100  left-0 bg-white/95 text-[#1F2937] rounded-2xl shadow-lg w-80 py-2 z-20 backdrop-blur-md"
-                        style={{
-                          backdropFilter: "blur(7px)",
-                          WebkitBackdropFilter: "blur(7px)",
-                          border: "1px solid rgba(30,58,138,0.04)"
-                        }}>
-                      {COURSES_DETAILS.map((course, i) => (
+                    <div
+                      className="absolute bottom-100  left-0 bg-white/95 text-[#1F2937] rounded-2xl shadow-lg w-80 py-2 z-20 backdrop-blur-md"
+                      style={{
+                        backdropFilter: "blur(7px)",
+                        WebkitBackdropFilter: "blur(7px)",
+                        border: "1px solid rgba(30,58,138,0.04)"
+                      }}>
+                      {courses.map((course) => (
                         <Link
                           key={course.slug}
                           to={`/courses/${course.slug}`}
@@ -255,7 +227,6 @@ export default function Navbar() {
                     Jobs
                   </Link>
                 </li>
-               
                 <li>
                   <Link
                     to="/blogs"
@@ -277,7 +248,7 @@ export default function Navbar() {
               </ul>
               {/* "Talk To A Recruiter" Button */}
               <Link
-                to="/contact"
+                to="/talk-to-a-recruiter"
                 className="ml-6 px-5 py-2 bg-[#FF7A00] hover:bg-[#ff9000] text-white font-bold rounded-full shadow transition-all duration-150 text-sm whitespace-nowrap"
                 onClick={handleNavClick}
                 style={{ boxShadow: "0 2px 12px 0 rgba(255, 122, 0, 0.14)" }}
@@ -288,7 +259,7 @@ export default function Navbar() {
 
             {/* Mobile Button */}
             <button
-              className="md:hidden text-2xl text-[#FFFFFF]"
+              className="lg:hidden text-2xl text-[#FFFFFF]"
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label={menuOpen ? "Close menu" : "Open menu"}
             >
@@ -307,7 +278,8 @@ export default function Navbar() {
             marginTop: 0,
             backdropFilter: "blur(12px)",
             WebkitBackdropFilter: "blur(12px)",
-          }}>
+          }}
+        >
           <ul className="flex flex-col gap-2 px-6 pt-6 pb-6 text-sm font-medium">
             <li>
               <Link
@@ -329,86 +301,68 @@ export default function Navbar() {
             </li>
             {/* Services Dropdown (collapsible for mobile) */}
             <li>
-              <div
+              <Link
+                to="/services"
                 className="flex items-center gap-1 cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors select-none"
-                onClick={() => setMobileServicesOpen((v) => !v)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setMobileServicesOpen((v) => !v);
+                }}
               >
                 Services{" "}
-                <span className={mobileServicesOpen ? "rotate-180 transition-transform" : "transition-transform"}>
+                <span
+                  className={
+                    mobileServicesOpen
+                      ? "rotate-180 transition-transform"
+                      : "transition-transform"
+                  }
+                >
                   <FaChevronDown size={12} />
                 </span>
-              </div>
+              </Link>
               {mobileServicesOpen && (
                 <div className="mt-2 ml-2 bg-white/90 text-[#1F2937] rounded-xl shadow-lg w-full py-2 z-20 backdrop-blur-md">
-                  <Link
-                    to="/services/education-skill-training"
-                    className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
-                    onClick={() => handleNavClick({ closeMobileDropdowns: true })}
-                  >
-                    Education & Skill Training
-                  </Link>
-                  <Link
-                    to="/services/placement-staffing"
-                    className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
-                    onClick={() => handleNavClick({ closeMobileDropdowns: true })}
-                  >
-                    Placement & Staffing
-                  </Link>
-                  <Link
-                    to="/services/career-guidance"
-                    className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
-                    onClick={() => handleNavClick({ closeMobileDropdowns: true })}
-                  >
-                    Career Guidance
-                  </Link>
-                  <Link
-                    to="/services/corporate-training"
-                    className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
-                    onClick={() => handleNavClick({ closeMobileDropdowns: true })}
-                  >
-                    Corporate Training
-                  </Link>
-                  <Link
-                    to="/services/digital-solutions"
-                    className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
-                    onClick={() => handleNavClick({ closeMobileDropdowns: true })}
-                  >
-                    Digital Solutions
-                  </Link>
-                  <Link
-                    to="/services/franchise-partnership"
-                    className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
-                    onClick={() => handleNavClick({ closeMobileDropdowns: true })}
-                  >
-                    Franchise & Partnership
-                  </Link>
+                  {services.map((service) => (
+                    <Link
+                      key={service.slug}
+                      to={`/services/${service.slug}`}
+                      className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] rounded-md transition-colors cursor-pointer"
+                      onClick={() => handleNavClick({ closeMobileDropdowns: true })}
+                    >
+                      {service.title}
+                    </Link>
+                  ))}
                 </div>
               )}
             </li>
             {/* Courses Dropdown (collapsible for mobile) */}
             <li>
-              <Link
-                to="/courses"
+              <div
                 className="flex items-center gap-1 cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors select-none"
                 onClick={() => setMobileCoursesOpen((v) => !v)}
               >
                 Courses{" "}
-                <span className={mobileCoursesOpen ? "rotate-180 transition-transform" : "transition-transform"}>
+                <span
+                  className={
+                    mobileCoursesOpen
+                      ? "rotate-180 transition-transform"
+                      : "transition-transform"
+                  }
+                >
                   <FaChevronDown size={12} />
                 </span>
-              </Link>
+              </div>
               {mobileCoursesOpen && (
                 <div className="mt-2 ml-2 bg-white/95 text-[#1F2937] rounded-2xl shadow-lg w-full py-2 z-20 backdrop-blur-md">
-                  {COURSE_LIST.map((name, i) => (
-                    <span
-                      key={i}
+                  {courses.map((course) => (
+                    <Link
+                      key={course.slug}
+                      to={`/courses/${course.slug}`}
                       className="block px-4 py-2 hover:bg-[#E5ECF8] hover:text-[#0072FF] text-sm rounded-md cursor-pointer transition-colors"
-                      onClick={() => {
-                        handleNavClick({ closeMobileDropdowns: true });
-                      }}
+                      onClick={() => handleNavClick({ closeMobileDropdowns: true })}
                     >
-                      {name}
-                    </span>
+                      {course.title}
+                    </Link>
                   ))}
                 </div>
               )}
@@ -422,7 +376,6 @@ export default function Navbar() {
                 Jobs
               </Link>
             </li>
-           
             <li>
               <Link
                 to="/blogs"
@@ -444,10 +397,12 @@ export default function Navbar() {
             {/* "Talk To A Recruiter" Button for mobile */}
             <li>
               <Link
-                to="/contact"
+                to="/talk-to-a-recruiter"
                 className="mt-3 w-full px-5 py-2 bg-[#FF7A00] hover:bg-[#ff9000] text-white font-bold rounded-full shadow transition-all duration-150 text-sm text-center block"
                 onClick={() => handleNavClick({ closeMobileDropdowns: true })}
-                style={{ boxShadow: "0 2px 12px 0 rgba(255, 122, 0, 0.14)" }}
+                style={{
+                  boxShadow: "0 2px 12px 0 rgba(255, 122, 0, 0.14)",
+                }}
               >
                 Talk To A Recruiter
               </Link>
@@ -456,7 +411,13 @@ export default function Navbar() {
         </div>
       )}
       {/* Spacer to keep page content below navbar */}
-      <div style={{ height: NAVBAR_HEIGHT + (scrolled ? 8 : 0), minHeight: NAVBAR_HEIGHT }} aria-hidden="true" />
+      <div
+        style={{
+          height: NAVBAR_HEIGHT + (scrolled ? 8 : 0),
+          minHeight: NAVBAR_HEIGHT,
+        }}
+        aria-hidden="true"
+      />
     </>
   );
 }

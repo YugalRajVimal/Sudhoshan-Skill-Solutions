@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   FaMapMarkerAlt,
   FaPhoneAlt,
@@ -44,6 +45,87 @@ const COURSE_LIST = [
   "Office Administration & Front Office Management",
 ];
 
+function FooterSubscribe() {
+  // Copied and adapted from BlogCTA in BlogPage.js (see file_context_0)
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState("idle"); // idle | loading | success | error
+  const [message, setMessage] = useState("");
+
+  async function handleSubscribe(e) {
+    e.preventDefault();
+    setMessage("");
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+      setStatus("error");
+      setMessage("Please enter a valid email address.");
+      return;
+    }
+    setStatus("loading");
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL || ""}/api/subscribe-newsletter`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email.trim() }),
+        }
+      );
+      const data = await response.json();
+      if (response.ok && data.message) {
+        setStatus("success");
+        setMessage(data.message);
+        setEmail("");
+      } else {
+        setStatus("error");
+        setMessage(data?.error || "Unable to subscribe. Please try again later.");
+      }
+    } catch (err) {
+      setStatus("error");
+      setMessage("An unexpected error occurred. Please try again.");
+    }
+  }
+
+  return (
+    <form
+      className="flex flex-col gap-2 mt-6 items-center w-full"
+      onSubmit={handleSubscribe}
+      aria-label="Subscribe to newsletter (Footer)"
+    >
+      <div className="flex flex-col xs:flex-row items-stretch xs:items-center w-full gap-2">
+        <input
+          type="email"
+          placeholder="Enter your email"
+          className="px-3 py-2 rounded-md text-gray-900 w-full xs:w-52 text-sm focus:outline-none flex-1"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          required
+          disabled={status === "loading"}
+        />
+        <button
+          type="submit"
+          className="bg-orange-500 px-4 py-2 rounded-md hover:bg-orange-600 text-white transition text-sm disabled:opacity-60 w-full xs:w-auto"
+          disabled={status === "loading"}
+        >
+          {status === "loading" ? "Subscribing..." : "Subscribe"}
+        </button>
+      </div>
+      {!!message && (
+        <div
+          className={`text-xs mt-1 text-center ${
+            status === "success"
+              ? "text-green-400"
+              : status === "error"
+              ? "text-red-300"
+              : "text-gray-100"
+          }`}
+          role={status === "error" ? "alert" : undefined}
+        >
+          {message}
+        </div>
+      )}
+    </form>
+  );
+}
+
 export default function Footer() {
   return (
     <footer className="bg-[#1e3a8a] text-white">
@@ -66,20 +148,20 @@ export default function Footer() {
       <div className=" mx-auto px-6 py-6 grid md:grid-cols-2 lg:grid-cols-4 gap-10">
         {/* Company Info */}
         <div>
-          
           <img
             src="/logo.png"
             alt="Sudhosan Skill Solutions Logo"
             className="h-14 w-14 mx-auto bg-white object-contain rounded mb-4"
           />
           {/* Main heading uses font-serif */}
-          <h2 className="text-2xl font-bold font-serif text-[#FF7A00]">Sudhosan Skill Solutions</h2>
-          <p className="text-xs hidden md:block text-center w-full mb-4" style={{ color: "#FFFFFF" }}>
+          <h2 className="text-lg sm:text-2xl font-bold font-serif text-[#FF7A00] text-center">Sudhosan Skill Solutions</h2>
+          <p className="text-xs  text-center w-full mb-4" style={{ color: "#FFFFFF" }}>
             DREAM | DISCOVER | DELIVER
           </p>
-          <p className="text-blue-100 text-sm leading-relaxed">
-          Sudhosan Skill Solutions Pvt. Ltd. bridges the gap between education and employment through industry-aligned training, career guidance, and direct placement support across India.
+          <p className="text-blue-100 text-center md:text-left text-sm leading-relaxed">
+            Sudhosan Skill Solutions Pvt. Ltd. bridges the gap between education and employment through industry-aligned training, career guidance, and direct placement support across India.
           </p>
+         
         </div>
 
         {/* Quick Links */}
@@ -88,7 +170,6 @@ export default function Footer() {
           <ul className="space-y-2 text-blue-100">
             {QUICK_LINKS.map((item) => (
               <li key={item.label}>
-                {/* Replace # with real links as available */}
                 <a
                   href={item.href}
                   className="hover:text-orange-400 transition"
@@ -110,9 +191,16 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Contact */}
+        {/* Contact & Mobile Subscribe */}
         <div>
-          <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
+           {/* Subscribe button and form */}
+           <div className="hidden lg:block ">
+            <h4 className="text-base font-semibold text-white text-center mb-1">
+              Subscribe to our Newsletter
+            </h4>
+            <FooterSubscribe />
+          </div>
+          <h3 className="text-lg font-semibold mb-4 mt-6">Contact Us</h3>
           <div className="space-y-3 text-blue-100 text-sm">
             <div className="flex items-start gap-3">
               <FaMapMarkerAlt className="text-orange-400 mt-1" />
@@ -130,6 +218,13 @@ export default function Footer() {
               <FaEnvelope className="text-orange-400" />
               <span>info@sudhosanskillsolutions.in</span>
             </div>
+          </div>
+          {/* Subscribe for mobile and tablet views (shows up on <lg screens) */}
+          <div className="block lg:hidden mt-6">
+            <h4 className="text-base font-semibold text-white mb-1 text-center">
+              Subscribe to our Newsletter
+            </h4>
+            <FooterSubscribe />
           </div>
         </div>
       </div>

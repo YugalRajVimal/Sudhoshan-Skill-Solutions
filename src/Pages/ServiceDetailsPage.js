@@ -1,12 +1,9 @@
 import { useParams } from "react-router-dom";
 import ServicePageTemplate from "./ServicePageTemplate";
-import { services } from "../data/services";
 
-
-export default function ServiceDetailsPage() {
-
+export default function ServiceDetailsPage({ allData }) {
   const { slug } = useParams();
-
+  const services = allData?.services ?? [];
   const service = services.find((s) => s.slug === slug);
 
   return <ServicePageTemplate service={service} />;

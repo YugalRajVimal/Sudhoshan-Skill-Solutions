@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { COURSE_INDEX, COURSES_DETAILS, COURSE_NOTES } from "../data/CourcesData";
+import { COURSE_NOTES } from "../data/CourcesData";
 
 function kebabCase(str) {
   // Utility to make "Digital Literacy & Internet Essentials" -> "digital-literacy-internet-essentials"
@@ -11,7 +11,9 @@ function kebabCase(str) {
     .replace(/^-|-$/g, "");
 }
 
-export default function Cources() {
+export default function Cources({ allData }) {
+  const COURSES_DETAILS = allData?.courses ?? [];
+
   return (
     <div className="max-w-7xl mx-auto px-5 sm:px-10 py-10">
       <section className="mb-12">
@@ -30,48 +32,7 @@ export default function Cources() {
         )}
       </section>
 
-      <section className="mb-14">
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white rounded-lg shadow divide-y divide-blue-100">
-            <thead>
-              <tr className="bg-blue-50 text-blue-800 text-sm uppercase font-bold">
-                <th className="px-3 py-2 text-left">#</th>
-                <th className="px-3 py-2 text-left">Course Name</th>
-                <th className="px-3 py-2 text-left">Category</th>
-                <th className="px-3 py-2 text-left">Duration</th>
-                <th className="px-3 py-2 text-left">Fee</th>
-                <th className="px-3 py-2 text-left">Details</th>
-              </tr>
-            </thead>
-            <tbody>
-              {COURSE_INDEX.map((course, i) => (
-                <tr key={course.no} className={i % 2 === 0 ? "bg-white" : "bg-blue-50/30"}>
-                  <td className="px-3 py-2 font-mono text-center">{course.no}</td>
-                  <td className="px-3 py-2 font-semibold text-blue-900">
-                    {course.name}
-                  </td>
-                  <td className="px-3 py-2 text-blue-600">{course.category}</td>
-                  <td className="px-3 py-2">{course.duration}</td>
-                  <td className="px-3 py-2 font-medium text-orange-600">{course.fee}</td>
-                  <td className="px-3 py-2">
-                    <Link
-                      to={`/courses/${getCourseSlugByName(course.name)}`}
-                      className="text-orange-500 hover:underline font-medium text-sm"
-                    >
-                      View Details
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
       <section>
-        <h2 className="text-2xl font-bold mb-6 text-blue-900 tracking-tight font-serif">
-          Featured Courses
-        </h2>
         <div className="grid gap-8 sm:gap-10 md:grid-cols-2">
           {COURSES_DETAILS.map((course) => (
             <div
@@ -119,7 +80,8 @@ export default function Cources() {
 }
 
 // Helper to get slug by full course name from COURSES_DETAILS or fallback to kebab-case
-function getCourseSlugByName(name) {
+// Needs to be passed COURSES_DETAILS in the new situation
+function getCourseSlugByName(name, COURSES_DETAILS) {
   const detailObj =
     COURSES_DETAILS.find((c) => c.title.toLowerCase() === name.toLowerCase()) ||
     COURSES_DETAILS.find((c) => c.title.toLowerCase().includes(name.toLowerCase().replace(/&/g, "and")));
