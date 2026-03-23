@@ -81,7 +81,7 @@ export default function TestimonialSection() {
       <div className="max-w-[1400px] mx-auto px-6">
 
         {/* Heading */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-16 text-blue-900 ">
           <h2
             className="text-4xl font-bold font-serif mb-4"
             

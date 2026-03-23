@@ -63,7 +63,7 @@ export function Leadership() {
   return (
     <section className="py-20 bg-gray-50 px-6">
       <div className="max-w-6xl mx-auto text-center">
-        <h2 className="font-serif text-3xl font-bold mb-4">
+        <h2 className="font-serif text-blue-900  text-3xl font-bold mb-4">
           Meet Our <span className="text-orange-500">Leadership</span>
         </h2>
         <p className="text-gray-500 mb-12">

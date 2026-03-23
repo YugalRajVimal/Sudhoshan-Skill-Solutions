@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt, FaBriefcase, FaRupeeSign, FaFilter } from "react-icons/fa";
 
@@ -361,7 +361,7 @@ function Filters({
   );
 }
 
-// --- ApplyModal Component ---
+// --- ApplyModal Component with scrollable body if needed ---
 function ApplyModal({ open, job, onClose }) {
   const [form, setForm] = useState({
     name: "",
@@ -374,6 +374,9 @@ function ApplyModal({ open, job, onClose }) {
   const [submitted, setSubmitted] = useState(false);
   const [submitMessage, setSubmitMessage] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Track modal height for scroll strategy
+  const modalRef = useRef(null);
 
   // Reset form on close or job change
   React.useEffect(() => {
@@ -474,14 +477,27 @@ function ApplyModal({ open, job, onClose }) {
     if (e.target === e.currentTarget) onClose();
   }
 
+  // Make modal content scrollable if content > viewport height
+  // (Responsive with Tailwind, fallback)
   return (
     <div
       className="fixed z-[100] top-0 left-0 w-full h-full bg-black bg-opacity-40 flex items-center justify-center px-2"
       onClick={handleOverlayClick}
       aria-modal="true"
       role="dialog"
+      style={{
+        // Prevent "full page scroll" when modal open
+        overflowY: 'auto'
+      }}
     >
-      <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 max-w-lg w-full relative">
+      <div
+        ref={modalRef}
+        className="bg-white rounded-xl shadow-lg p-6 sm:p-8 max-w-lg w-full relative"
+        style={{
+          maxHeight: "calc(100vh - 40px)",
+          overflowY: "auto",
+        }}
+      >
         <button
           className="absolute right-4 top-4 text-2xl font-bold text-gray-800 hover:text-orange-500"
           aria-label="Close"

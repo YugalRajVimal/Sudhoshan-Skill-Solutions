@@ -1,6 +1,6 @@
 import React from "react";
 
-const ServicePageTemplate = ({ service }) => {
+const ServicePageTemplate = ({ service,setOpen }) => {
   if (!service) {
     return (
       <div className="text-center py-24 text-3xl font-semibold bg-gradient-to-br from-blue-900 via-blue-700 to-blue-500 text-white min-h-[50vh] flex items-center justify-center">
@@ -80,12 +80,13 @@ const ServicePageTemplate = ({ service }) => {
         <p className="text-gray-700 mb-8 text-lg max-w-2xl mx-auto">
           Empowering India's youth with better opportunities. Reach out to us today and become part of the movement.
         </p>
-        <a
-          href="/contact"
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
           className="inline-block bg-orange-500 text-white px-10 py-4 rounded-full text-lg font-semibold shadow-lg hover:bg-orange-600 hover:scale-105 transition transform duration-200 focus:outline-none focus:ring-4 focus:ring-orange-300"
         >
           Contact Us
-        </a>
+        </button>
       </section>
     </div>
   );

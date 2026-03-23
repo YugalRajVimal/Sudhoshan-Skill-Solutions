@@ -8,10 +8,11 @@ export default function ServicesPage({ allData }) {
     <div className=" min-h-screen text-black">
       {/* Hero Section */}
       <section className="max-w-4xl mx-auto pt-24 pb-10 px-6 text-center relative">
-        <h1 className="text-5xl md:text-6xl  font-bold font-serif mb-4">
-          Our Services
+        <h1 className="text-5xl md:text-6xl font-bold font-serif mb-4">
+          <span className="text-blue-900">Our </span>
+          <span className="text-orange-500">Services</span>
         </h1>
-        <p className="text-lg md:text-xl text-orange-500 font-medium mb-7 max-w-2xl mx-auto">
+        <p className="text-lg md:text-xl text-blue-900 font-medium mb-7 max-w-2xl mx-auto">
           Empowering students, job-seekers, and corporates with skill-driven growth.
         </p>
         <div

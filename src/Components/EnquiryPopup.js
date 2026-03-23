@@ -1,10 +1,9 @@
-import { useState } from "react";
+import { useState, useRef, useLayoutEffect } from "react";
 import axios from "axios";
 
 const API_URL = process.env.REACT_APP_API_URL || "";
 
-export default function EnquiryPopup() {
-  const [open, setOpen] = useState(false);
+export default function EnquiryPopup({open,setOpen}) {
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -16,6 +15,16 @@ export default function EnquiryPopup() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [submitResult, setSubmitResult] = useState(null);
+
+  // Ref and state to track button height for closed panel
+  const buttonRef = useRef(null);
+  const [buttonHeight, setButtonHeight] = useState(0);
+
+  useLayoutEffect(() => {
+    if (buttonRef.current) {
+      setButtonHeight(buttonRef.current.offsetHeight);
+    }
+  }, []);
 
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
@@ -100,7 +109,7 @@ export default function EnquiryPopup() {
       {/* Overlay */}
       <div
         onClick={() => setOpen(false)}
-        className={`fixed inset-0 bg-black/40 z-50 transition-opacity duration-300 ${
+        className={`fixed inset-0 bg-black/40 z-40 transition-opacity h-fit duration-300 ${
           open ? "opacity-100 visible" : "opacity-0 invisible"
         }`}
         style={{ pointerEvents: open ? "auto" : "none" }}
@@ -108,13 +117,18 @@ export default function EnquiryPopup() {
 
       {/* Sliding Panel with Button always visible, form expands */}
       <div
-        className={`fixed top-1/2 -translate-y-1/2 right-0 flex items-center z-50`}
-        style={{ height: "auto" }}
+        className={`fixed top-1/2 -translate-y-1/2 right-0 flex items-center z-40`}
+        // No h-fit - height now controlled below
+        style={{
+          height: open ? "auto" : (buttonHeight ? `${buttonHeight}px` : undefined),
+          transition: "height 0.3s",
+        }}
       >
         {/* Floating Button always visible, stays on the left of the form */}
         <button
+          ref={buttonRef}
           onClick={() => setOpen(true)}
-          className={`bg-orange-600 text-white px-2 md:px-4 py-3 rounded-l-lg font-semibold z-50 transition-transform duration-300
+          className={`bg-orange-600 text-white px-2 md:px-4 py-3 h-fit rounded-l-lg font-semibold z-40 transition-transform duration-300
           relative left-0 top-0 flex-shrink-0`}
           style={{
             writingMode: "vertical-rl",
@@ -128,11 +142,16 @@ export default function EnquiryPopup() {
         {/* Form Panel expands/collapses with width transition */}
         <div
           className={`
-            bg-orange-500 rounded-l-lg shadow-xl transform transition-all duration-300 ease-in-out overflow-hidden
+            bg-orange-400 rounded-l-lg shadow-xl transform transition-all duration-300 ease-in-out overflow-hidden
             ${open ? "w-fit sm:w-[420px] p-6 opacity-100" : "w-0 p-0 opacity-0"}
-            h-full relative
+            relative
           `}
-          style={{ minWidth: open ? "320px" : "0", maxWidth: "100vw" }}
+          style={{
+            minWidth: open ? "320px" : "0",
+            maxWidth: "100vw",
+            height: open ? "auto" : (buttonHeight ? `${buttonHeight}px` : undefined),
+            transition: "height 0.3s, min-width 0.3s, padding 0.3s, opacity 0.3s",
+          }}
         >
           {/* Close */}
           <button
@@ -152,7 +171,7 @@ export default function EnquiryPopup() {
               overflow-y-auto transition-opacity duration-300 
               ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}
             `}
-            style={{ height: "100%" }}
+            style={{ height: open ? "100%" : "0" }}
           >
             {/* Title */}
             <h2 className="text-2xl font-bold text-blue-900 mb-6 mt-2">

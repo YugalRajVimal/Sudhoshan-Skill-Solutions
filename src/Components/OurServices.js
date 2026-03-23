@@ -81,7 +81,7 @@ export default function ServicesSection() {
           <p className="text-orange-500 font-bold tracking-wider uppercase text-sm">
           What We Offer
           </p>
-          <h2 className="font-serif text-4xl md:text-5xl font-extrabold text-gray-800 mt-3 leading-snug drop-shadow">
+          <h2 className="font-serif text-blue-900  text-4xl md:text-5xl font-extrabold  mt-3 leading-snug drop-shadow">
             Our <span className="text-orange-500">Services</span> & <span className="text-orange-500">Solutions</span>
           </h2>
           <p className="text-gray-600 mt-4 max-w-2xl mx-auto text-lg md:text-xl">

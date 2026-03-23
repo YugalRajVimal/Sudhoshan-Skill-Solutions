@@ -14,7 +14,7 @@ export function OurMission() {
           </div>
           {/* Text Section */}
           <div className="md:w-2/3 w-full">
-            <h2 className="font-serif text-4xl font-bold text-gray-900 mb-4">Who We Are</h2>
+            <h2 className="font-serif text-4xl text-blue-900  font-bold mb-4">Who We Are</h2>
             <p className="text-gray-800 mb-5 text-lg leading-relaxed">
               <span className="font-semibold text-blue-800">
                 Sudhosan Skill Solutions Private Limited

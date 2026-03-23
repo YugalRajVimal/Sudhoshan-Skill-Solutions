@@ -238,7 +238,7 @@ export default function PlacementPartners() {
       <style>{marqueeAnim}</style>
       <div className=" text-center">
         {/* Heading */}
-        <h2 className="text-4xl font-bold font-serif mb-3" style={{ color: COLORS.textDark }}>
+        <h2 className="text-4xl font-bold font-serif mb-3 text-blue-900 ">
           We Place <span style={{ color: COLORS.accent }}>Candidates</span> In
         </h2>
         <p className="mb-16" style={{ color: COLORS.textLight }}>

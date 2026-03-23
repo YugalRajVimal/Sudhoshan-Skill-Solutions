@@ -22,6 +22,7 @@ import { fetchAllData } from './data/AllData';
 import ServicesPage from './Pages/Services';
 import TalkToARecruiterPage from './Pages/TalkToARecruiter';
 import GetAdmissionPage from './Pages/GetAdmissionPage';
+import LegalPages, { PrivacyPolicy, RefundPolicy, TermsConditions } from './Pages/Policies';
 
 const WHATSAPP_NUMBER = '+919430247535';
 
@@ -110,6 +111,9 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const [allData,setAllData] = useState();
 
+  const [open, setOpen] = useState(false);
+
+
   useEffect(() => {
     fetchAllData()
       .then((data) => {
@@ -134,12 +138,14 @@ const App = () => {
       });
   }, []);
 
+
+
   return (
     <Router>
       <div className='relative'>
         {loading && <LoaderPage />}
         <Navbar allData={allData}/>
-        <EnquiryPopup />
+        <EnquiryPopup open={open} setOpen={setOpen} />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<AboutPage />} />
@@ -153,12 +159,21 @@ const App = () => {
           <Route path="/blogs/:slug" element={<BlogDetailsPage />} />
 
           <Route path="/services" element={<ServicesPage allData={allData} />} />
-          <Route path="/services/:slug" element={<ServiceDetailsPage allData={allData} />} />
+          <Route path="/services/:slug" element={<ServiceDetailsPage allData={allData}  setOpen={setOpen}/>} />
           
           <Route path="/courses" element={<Cources allData={allData} />} />
           <Route path="/courses/:slug" element={<CourseDetailsPage allData={allData} />} />
+
+
+        <Route path="/terms-and-conditions" element={<TermsConditions />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/refund-and-cancellation-policy" element={<RefundPolicy />} />
+
+
+
+
         </Routes>
-        <Footer />
+        <Footer allData={allData} />
 
         {/* WhatsApp floating action button */}
         <a

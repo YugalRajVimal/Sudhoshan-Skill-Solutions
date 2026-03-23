@@ -220,7 +220,10 @@ export default function GetAdmissionPage() {
                 { label: "B.Ed. / D.El.Ed. (Teacher Training)", value: "B.Ed. / D.El.Ed. (Teacher Training)" },
                 { label: "Law — LLB / LLM", value: "Law — LLB / LLM" },
 
-              
+                // Other
+                { label: "— Other —", value: "", disabled: true },
+                { label: "Career Counselling — Not Sure Yet", value: "Career Counselling — Not Sure Yet" },
+                { label: "Other Course (Specify in Message)", value: "Other Course (Specify in Message)" },
               ];
               return (
                 <div>
