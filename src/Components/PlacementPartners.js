@@ -9,32 +9,6 @@ import {
 import { MdVerified } from "react-icons/md";
 import { BsBookmarksFill } from "react-icons/bs";
 
-// Animated Counter hook: Do NOT auto start, you must trigger with `shouldStart`
-function useCountUp(to, duration = 1800, { start = 0, shouldStart = false } = {}) {
-  const [count, setCount] = useState(start || 0);
-  const rafRef = useRef();
-  useEffect(() => {
-    if (!shouldStart) return;
-    let end = typeof to === "number" ? to : parseInt(to, 10);
-    let startTime = null;
-    const step = (timestamp) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / duration, 1);
-      const value = Math.floor(start + (end - start) * progress);
-      setCount(value);
-      if (progress < 1) {
-        rafRef.current = requestAnimationFrame(step);
-      } else {
-        setCount(end);
-      }
-    };
-    rafRef.current = requestAnimationFrame(step);
-    return () => rafRef.current && cancelAnimationFrame(rafRef.current);
-    // eslint-disable-next-line
-  }, [to, duration, shouldStart]);
-  return count;
-}
-
 // Utility to detect if element has entered the viewport
 function useOnScreen(ref, rootMargin = "0px") {
   const [isIntersecting, setIntersecting] = useState(false);
@@ -49,7 +23,173 @@ function useOnScreen(ref, rootMargin = "0px") {
   return isIntersecting;
 }
 
-export default function PlacementPartners() {
+// Icon mapping helper
+const iconMap = {
+  briefcase: (
+    <span className="inline-block bg-orange-100 text-orange-500 rounded-full p-3 mb-2 shadow-sm">
+      <FaBriefcase className="w-6 h-6" />
+    </span>
+  ),
+  building: (
+    <span className="inline-block bg-blue-100 text-blue-500 rounded-full p-3 mb-2 shadow-sm">
+      <FaBuilding className="w-6 h-6" />
+    </span>
+  ),
+  university: (
+    <span className="inline-block bg-green-100 text-green-600 rounded-full p-3 mb-2 shadow-sm">
+      <FaUniversity className="w-6 h-6" />
+    </span>
+  ),
+  "user-graduate": (
+    <span className="inline-block bg-purple-100 text-purple-500 rounded-full p-3 mb-2 shadow-sm">
+      <FaUserGraduate className="w-6 h-6" />
+    </span>
+  ),
+  "map-marker": (
+    <span className="inline-block bg-yellow-100 text-yellow-600 rounded-full p-3 mb-2 shadow-sm">
+      <FaMapMarkerAlt className="w-6 h-6" />
+    </span>
+  ),
+  verified: (
+    <span className="inline-block bg-emerald-100 text-emerald-500 rounded-full p-3 mb-2 shadow-sm">
+      <MdVerified className="w-6 h-6" />
+    </span>
+  ),
+  bookmarks: (
+    <span className="inline-block bg-pink-100 text-pink-500 rounded-full p-3 mb-2 shadow-sm">
+      <BsBookmarksFill className="w-6 h-6" />
+    </span>
+  ),
+};
+
+// Helper to animate numbers
+function useCountUp(trigger, toValue, duration = 1500, startValue = 0) {
+  const [value, setValue] = useState(startValue);
+
+  useEffect(() => {
+    if (!trigger) return;
+    setValue(startValue);
+
+    // Only animate when trigger becomes true
+    let frameId;
+    let startTimestamp;
+    const increment = toValue - startValue;
+    // Avoid animating non-numerics
+    if (typeof toValue !== "number") {
+      setValue(toValue);
+      return;
+    }
+    function animate(ts) {
+      if (!startTimestamp) startTimestamp = ts;
+      const elapsed = ts - startTimestamp;
+      if (elapsed < duration) {
+        const progress = Math.min(elapsed / duration, 1);
+        setValue(Math.floor(startValue + increment * progress));
+        frameId = requestAnimationFrame(animate);
+      } else {
+        setValue(toValue);
+      }
+    }
+    frameId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frameId);
+    // eslint-disable-next-line
+  }, [trigger, toValue, duration, startValue]);
+
+  return value;
+}
+
+function AnimatedStat({ stat, isOnScreen }) {
+  // The stat.valueNum may already be number, else fallback to parse
+  let value = stat.valueNum;
+  let suffix = stat.valueSuffix || "";
+  let duration = stat.duration || 1500;
+  // Try to parse number if necessary (might be a string with '+')
+  if (typeof value !== "number" && typeof value === "string") {
+    // Extract leading number part (e.g., '2,000+' maps to 2000 and '+' as suffix)
+    const match = value.match(/([\d,]+)/);
+    if (match) {
+      value = Number(match[1].replace(/,/g, ""));
+      // Append '+' if found. If not, keep original suffix.
+      if (/\+/.test(stat.valueNum)) suffix = "+" + (suffix || "");
+    }
+  }
+  const animated = useCountUp(isOnScreen, typeof value === "number" ? value : 0, duration);
+
+  // Format value with commas
+  function formatNumber(val) {
+    return val.toLocaleString();
+  }
+  // If it's not a number, fallback
+  if (typeof value !== "number" || isNaN(value)) {
+    return (
+      <>
+        {stat.icon}
+        <p className="text-xl font-semibold mb-1" style={{ color: stat.color }}>
+          {stat.valueNum}
+          {suffix}
+        </p>
+        <p className="text-xs font-medium" style={{ color: "#6B7280" }}>
+          {stat.label}
+        </p>
+      </>
+    );
+  }
+  return (
+    <>
+      {stat.icon}
+      <p className="text-xl font-semibold mb-1" style={{ color: stat.color }}>
+        {formatNumber(animated)}
+        {suffix}
+      </p>
+      <p className="text-xs font-medium" style={{ color: "#6B7280" }}>
+        {stat.label}
+      </p>
+    </>
+  );
+}
+
+function AnimatedStatLarge({ stat, isOnScreen }) {
+  // Same logic as AnimatedStat, but for larger font
+  let value = stat.valueNum;
+  let suffix = stat.valueSuffix || "";
+  let duration = stat.duration || 1500;
+  if (typeof value !== "number" && typeof value === "string") {
+    const match = value.match(/([\d,]+)/);
+    if (match) {
+      value = Number(match[1].replace(/,/g, ""));
+      if (/\+/.test(stat.valueNum)) suffix = "+" + (suffix || "");
+    }
+  }
+  const animated = useCountUp(isOnScreen, typeof value === "number" ? value : 0, duration);
+
+  function formatNumber(val) {
+    return val.toLocaleString();
+  }
+  if (typeof value !== "number" || isNaN(value)) {
+    return (
+      <>
+        <div className="mb-2">{stat.icon}</div>
+        <p className="text-2xl sm:text-3xl font-extrabold mb-1 transition-colors" style={{ color: stat.color }}>
+          {stat.valueNum}
+          {suffix}
+        </p>
+        <p className="text-sm font-medium" style={{ color: "#6B7280" }}>{stat.label}</p>
+      </>
+    );
+  }
+  return (
+    <>
+      <div className="mb-2">{stat.icon}</div>
+      <p className="text-2xl sm:text-3xl font-extrabold mb-1 transition-colors" style={{ color: stat.color }}>
+        {formatNumber(animated)}
+        {suffix}
+      </p>
+      <p className="text-sm font-medium" style={{ color: "#6B7280" }}>{stat.label}</p>
+    </>
+  );
+}
+
+export default function PlacementPartners({ allData }) {
   // Brand color palette
   const COLORS = {
     primary: "#0B3D91",
@@ -62,144 +202,46 @@ export default function PlacementPartners() {
     white: "#FFFFFF",
   };
 
-  // All company cards will use a blue gradient background.
-  const partners = [
-    {
-      name: "Future Sparks",
-      logo: "/client/fs.png",
-      alt: "Future Sparks Logo",
-    },
-    {
-      name: "Kiza Textiles",
-      logo: "/client/kiza.avif",
-      alt: "Kiza Textiles Logo",
-    },
-    {
-      name: "Takniki Shiksha Vidhaan Council",
-      logo: "/client/takniki-shiksha.jpeg",
-      alt: "Takniki Shiksha Vidhaan Council Logo",
-    },
-    {
-      name: "Awign",
-      logo: "/client/awign.svg",
-      alt: "Awign Logo",
-    },
-    {
-      name: "NIT Research Centre",
-      logo: "/client/NIT.png",
-      alt: "NIT Research Centre Logo",
-    },
-    {
-      name: "Zomato",
-      logo: "/client/zomato.avif",
-      alt: "Zomato Logo",
-    }
-  ];
+  useEffect(() => {
+    console.log("allData.stats:", allData?.stats);
+    console.log("allData.clients:", allData?.clients);
+  }, [allData]);
 
-  // Updated stats per prompt. Corresponds to spec order!
-  const stats = [
-    {
-      valueNum: 100, valueSuffix: "+",
-      label: "Candidates Placed",
-      color: COLORS.accent,
-      icon: (
-        <span className="inline-block bg-orange-100 text-orange-500 rounded-full p-3 mb-2 shadow-sm">
-          <FaBriefcase className="w-6 h-6" />
-        </span>
-      ),
-      duration: 1500
-    },
-    {
-      valueNum: 10, valueSuffix: "+",
-      label: "Partner Companies",
-      color: COLORS.accent,
-      icon: (
-        <span className="inline-block bg-blue-100 text-blue-500 rounded-full p-3 mb-2 shadow-sm">
-          <FaBuilding className="w-6 h-6" />
-        </span>
-      ),
-      duration: 1200
-    },
-    {
-      valueNum: 5, valueSuffix: "+",
-      label: "Colleges Connected",
-      color: COLORS.accent,
-      icon: (
-        <span className="inline-block bg-green-100 text-green-600 rounded-full p-3 mb-2 shadow-sm">
-          <FaUniversity className="w-6 h-6" />
-        </span>
-      ),
-      duration: 1200
-    },
-    {
-      valueNum: 100, valueSuffix: "+",
-      label: "Students Trained",
-      color: COLORS.accent,
-      icon: (
-        <span className="inline-block bg-purple-100 text-purple-500 rounded-full p-3 mb-2 shadow-sm">
-          <FaUserGraduate className="w-6 h-6" />
-        </span>
-      ),
-      duration: 1750
-    },
-    {
-      valueNum: 5, valueSuffix: "+",
-      label: "Cities Served",
-      color: COLORS.accent,
-      icon: (
-        <span className="inline-block bg-yellow-100 text-yellow-600 rounded-full p-3 mb-2 shadow-sm">
-          <FaMapMarkerAlt className="w-6 h-6" />
-        </span>
-      ),
-      duration: 1100
-    },
-    {
-      valueNum: 100, valueSuffix: "%",
-      label: "Placement Support",
-      color: COLORS.accent,
-      icon: (
-        <span className="inline-block bg-emerald-100 text-emerald-500 rounded-full p-3 mb-2 shadow-sm">
-          <MdVerified className="w-6 h-6" />
-        </span>
-      ),
-      duration: 1250,
-    },
-    {
-      valueNum: 10, valueSuffix: "+",
-      label: "Job-Ready Courses",
-      color: COLORS.accent,
-      icon: (
-        <span className="inline-block bg-pink-100 text-pink-500 rounded-full p-3 mb-2 shadow-sm">
-          <BsBookmarksFill className="w-6 h-6" />
-        </span>
-      ),
-      duration: 1050,
-    },
-  ];
+  // Stats and partners from allData
+  const stats = Array.isArray(allData?.stats)
+    ? allData.stats.map(stat => ({
+        ...stat,
+        duration:
+          stat.duration ??
+          (stat.label === "Candidates Placed"
+            ? 1500
+            : stat.label === "Partner Companies"
+            ? 1200
+            : stat.label === "Colleges Connected"
+            ? 1200
+            : stat.label === "Students Trained"
+            ? 1750
+            : stat.label === "Cities Served"
+            ? 1100
+            : stat.label === "Placement Support"
+            ? 1250
+            : stat.label === "Job-Ready Courses"
+            ? 1050
+            : 1300),
+        icon: iconMap[stat.icon] || (
+          <span className="inline-block bg-gray-200 text-gray-400 rounded-full p-3 mb-2 shadow-sm">
+            <FaBriefcase className="w-6 h-6" />
+          </span>
+        ),
+      }))
+    : [];
+
+  const partners = Array.isArray(allData?.clients) ? allData.clients : [];
 
   // Ref to the section element
   const sectionRef = useRef(null);
   // Detect if our section is visible on (any) user's screen
-  const isVisible = useOnScreen(sectionRef, "-100px");
-
-  // For animated stats, only start the count when the section is visible
-  // We cannot use Hooks in a map. Use a static series of hook-calls:
-  const animatedCount0 = useCountUp(stats[0].valueNum, stats[0].duration, { start: 0, shouldStart: isVisible });
-  const animatedCount1 = useCountUp(stats[1].valueNum, stats[1].duration, { start: 0, shouldStart: isVisible });
-  const animatedCount2 = useCountUp(stats[2].valueNum, stats[2].duration, { start: 0, shouldStart: isVisible });
-  const animatedCount3 = useCountUp(stats[3].valueNum, stats[3].duration, { start: 0, shouldStart: isVisible });
-  const animatedCount4 = useCountUp(stats[4].valueNum, stats[4].duration, { start: 0, shouldStart: isVisible });
-  const animatedCount5 = useCountUp(stats[5].valueNum, stats[5].duration, { start: 0, shouldStart: isVisible });
-  const animatedCount6 = useCountUp(stats[6].valueNum, stats[6].duration, { start: 0, shouldStart: isVisible });
-  const animatedCounts = [
-    animatedCount0,
-    animatedCount1,
-    animatedCount2,
-    animatedCount3,
-    animatedCount4,
-    animatedCount5,
-    animatedCount6,
-  ];
+  const isOnScreen = useOnScreen(sectionRef, "-100px");
 
   // Marquee animation for logos and stats (horizontal, repeat for seamless movement)
   const marqueeAnim = `
@@ -213,9 +255,11 @@ export default function PlacementPartners() {
     }
   `;
 
-  // Add a helper function to check for the Awign partner based on logo path and name
-  const isAwign = (partner) =>
+  // Helper for special rendering (Awign bg for its logo, optional)
+  const isAwign = partner =>
+    partner?.logo &&
     (partner.logo === "/client/awign.svg" || partner.logo === "/client/awign.png") &&
+    partner.name &&
     partner.name.toLowerCase().includes("awign");
 
   // Responsive check for mobile
@@ -245,8 +289,6 @@ export default function PlacementPartners() {
           <span style={{ color: COLORS.accent, fontWeight: 500 }}>Our trusted</span> hiring and institutional partners
         </p>
 
-
-
         {/* Partner Logos One-Line Infinite Marquee */}
         <div
           className="relative w-full overflow-x-hidden mb-16"
@@ -264,31 +306,51 @@ export default function PlacementPartners() {
             className="gap-12"
           >
             {[...partners, ...partners].map((partner, index) => (
-              <div key={index} className="flex flex-col items-center px-10" style={{ minWidth: 180 }}>
+              <div
+                key={index}
+                className="flex flex-col items-center px-10"
+                style={{ minWidth: 180 }}
+              >
                 {partner.logo ? (
                   <img
-                    src={partner.logo}
-                    alt={partner.alt}
+                    src={
+                      partner.logo && partner.logo.startsWith("Uploads")
+                        ? `${process.env.REACT_APP_API_URL || ''}/${partner.logo}`
+                        : partner.logo
+                    }
+                    alt={partner.alt || partner.name || ""}
                     className={
                       "h-24 object-contain p-2 rounded-xl shadow" +
                       (isAwign(partner) ? " bg-gray-800" : " bg-white")
                     }
                     style={{
                       maxWidth: 170,
-                      backgroundColor: isAwign(partner) ? "#1A2534" : undefined,
+                      backgroundColor: isAwign(partner)
+                        ? "#1A2534"
+                        : undefined,
                     }}
                   />
                 ) : (
-                  <FaBuilding className="text-4xl mx-auto mb-4 opacity-90" style={{ color: COLORS.accent }} />
+                  <FaBuilding
+                    className="text-4xl mx-auto mb-4 opacity-90"
+                    style={{ color: COLORS.accent }}
+                  />
                 )}
-                <span className="text-xs mt-2 text-gray-500 font-medium">{partner.name}</span>
+                <span className="text-xs mt-2 text-gray-500 font-medium">
+                  {partner.name}
+                </span>
               </div>
             ))}
           </div>
         </div>
 
         <p className="mt-12" style={{ color: "#FF7A00", fontWeight: 500 }}>
-          ...and many more organizations collaborating with <span style={{ color: COLORS.primary, fontWeight: 700 }}>Sudhosan Skill Solutions</span>
+          ...and many more organizations collaborating with{" "}
+          <span
+            style={{ color: COLORS.primary, fontWeight: 700 }}
+          >
+            Sudhosan Skill Solutions
+          </span>
         </p>
 
         {/* Statistics (Grid for desktop/tablet, Marquee for small screen) */}
@@ -306,7 +368,7 @@ export default function PlacementPartners() {
           >
             {[...stats, ...stats].map((stat, i) => (
               <div
-                key={stat.label + i}
+                key={(stat.label || "") + i}
                 className="
                   flex flex-col items-center rounded-2xl  p-5 mx-auto bg-white/95
                   border border-orange-100 transition-transform
@@ -315,17 +377,10 @@ export default function PlacementPartners() {
                   minWidth: 175,
                   maxWidth: 200,
                   margin: "0 1rem",
-                  // boxShadow: "0 6px 30px 0 rgba(11,61,145,0.09)",
                   background: `linear-gradient(140deg, #fff 80%, ${COLORS.gradEnd} 200%)`,
                 }}
               >
-                {stat.icon}
-                <p className="text-xl font-semibold mb-1" style={{ color: stat.color }}>
-                  {/* animatedCount[i%7] is always defined */}
-                  {animatedCounts[i % 7]}
-                  {stat.valueSuffix}
-                </p>
-                <p className="text-xs font-medium" style={{ color: COLORS.textLight }}>{stat.label}</p>
+                <AnimatedStat stat={stat} isOnScreen={isOnScreen} />
               </div>
             ))}
           </div>
@@ -356,11 +411,7 @@ export default function PlacementPartners() {
                   justifyContent: "center"
                 }}
               >
-                <div className="mb-2">{stat.icon}</div>
-                <p className="text-2xl sm:text-3xl font-extrabold mb-1 transition-colors" style={{ color: stat.color }}>
-                  {animatedCounts[i]}{stat.valueSuffix}
-                </p>
-                <p className="text-sm font-medium" style={{ color: COLORS.textLight }}>{stat.label}</p>
+                <AnimatedStatLarge stat={stat} isOnScreen={isOnScreen} />
                 {/* slight glow and accent hover effect */}
                 <span
                   className="absolute left-0 right-0 -bottom-1 h-2 pointer-events-none transition-opacity opacity-0 group-hover:opacity-100"
@@ -397,11 +448,7 @@ export default function PlacementPartners() {
                     justifyContent: "center"
                   }}
                 >
-                  <div className="mb-2">{stat.icon}</div>
-                  <p className="text-2xl sm:text-3xl font-extrabold mb-1 transition-colors" style={{ color: stat.color }}>
-                    {animatedCounts[i + 4]}{stat.valueSuffix}
-                  </p>
-                  <p className="text-sm font-medium" style={{ color: COLORS.textLight }}>{stat.label}</p>
+                  <AnimatedStatLarge stat={stat} isOnScreen={isOnScreen} />
                   {/* slight glow and accent hover effect */}
                   <span
                     className="absolute left-0 right-0 -bottom-1 h-2 pointer-events-none transition-opacity opacity-0 group-hover:opacity-100"
@@ -417,7 +464,6 @@ export default function PlacementPartners() {
           )}
         </div>
         {/* Bottom text */}
-      
       </div>
     </section>
   );

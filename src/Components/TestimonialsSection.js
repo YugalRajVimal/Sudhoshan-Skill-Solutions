@@ -21,51 +21,9 @@ function getFirstName(fullName) {
   return fullName.split(" ")[0].toLowerCase();
 }
 
-export default function TestimonialSection() {
-  const testimonials = [
-    {
-      name: "Ajeet Patel",
-      rating: 5,
-      feedback:
-        "I had a very positive experience with Sudhosan Skill Solutions. The training programs and HR-related support services were highly practical, well-structured, and aligned with current industry requirements."
-    },
-    {
-      name: "Anjali Kumari",
-      rating: 5,
-      feedback:
-        "The counselling session helped me identify my strengths and gave me a clear direction for my career. I now feel confident about the decisions I need to make for my future."
-    },
-    {
-      name: "Ranjan Yadav",
-      rating: 4,
-      feedback:
-        "I engaged with Sudhosan Skill Solutions for remote work opportunities and was impressed by their professionalism and clear communication."
-    },
-    {
-      name: "Muskan Gupta",
-      rating: 4,
-      feedback:
-        "Their guidance and understanding of my career goals made all the difference. I highly recommend Sudhosan Skill Solutions to anyone searching for job opportunities."
-    },
-    {
-      name: "Varsha Kumari",
-      rating: 5,
-      feedback:
-        "Extremely satisfied with the career guidance at Sudhosan Skill Solutions. They provided a clear roadmap to kickstart my career after graduation."
-    },
-    {
-      name: "Vinit",
-      rating: 5,
-      feedback:
-        "Fantastic experience! Very supportive team, clear communication, and great opportunities for career advancement."
-    },
-    {
-      name: "Sanjay Prasad",
-      rating: 5,
-      feedback:
-        "Excellent experience. The skills I learned here directly helped me secure a job."
-    }
-  ];
+export default function TestimonialSection({ allData }) {
+  // Fetch testimonials from prop allData, fallback to empty array
+  const testimonials = Array.isArray(allData?.testimonials) ? allData.testimonials : [];
 
   // Helper to build image path using first name
   function getProfileImage(name) {
@@ -73,8 +31,12 @@ export default function TestimonialSection() {
     return `/testimonials/${firstName}.jpg`;
   }
 
-  // Helper to test if a testimonial image exists? For now, always use image path, fallback if error.
-  // You could implement a robust check with useState/useEffect if you need to, but for now fallback to FaUser via img onError
+  // Set a fixed card height for all testimonial cards (responsive optimized)
+  // You can tune this value as needed for your design
+  const CARD_HEIGHT = {
+    base: 430,  // px for mobile
+    md: 350,    // px for md and up
+  };
 
   return (
     <section className="py-24">
@@ -84,7 +46,6 @@ export default function TestimonialSection() {
         <div className="text-center mb-16 text-blue-900 ">
           <h2
             className="text-4xl font-bold font-serif mb-4"
-            
           >
             Why are we the&nbsp;
             <span className="text-orange-500 font-bold">most trusted</span>
@@ -92,7 +53,6 @@ export default function TestimonialSection() {
           </h2>
           <p
             className="max-w-xl mx-auto text-lg"
-
           >
             Here's what our students, candidates, and partners say about us.
           </p>
@@ -117,40 +77,57 @@ export default function TestimonialSection() {
           }}
           className="pb-12"
         >
-          {testimonials.map((item, index) => (
-            <SwiperSlide key={index} className="h-full flex">
+          {(testimonials.length
+            ? testimonials
+            : [
+                // Fallback to show a message if no testimonials available
+                {
+                  name: "No testimonials yet",
+                  rating: 0,
+                  feedback: "We're gathering feedback from our happy clients. Check back soon!"
+                }
+              ]
+          ).map((item, index) => (
+            <SwiperSlide key={index} className="flex h-full">
               <div
-                className="rounded-xl p-8 shadow-lg hover:shadow-xl transition h-full flex flex-col min-h-[370px] md:min-h-[320px] flex-1 bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white"
+                className="rounded-xl p-8 shadow-lg hover:shadow-xl transition flex flex-col flex-1 bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 text-white"
                 style={{
                   border: `1.5px solid ${COLORS.bgGray}`,
+                  height: `clamp(${CARD_HEIGHT.md}px, 30vw, ${CARD_HEIGHT.base}px)`,
+                  minHeight: `${CARD_HEIGHT.md}px`,
+                  maxHeight: `${CARD_HEIGHT.base}px`,
                 }}
               >
-                {/* Rating */}
-                <div className="flex items-center mb-4 text-orange-400">
-                  <FaStar className="mr-2" />
-                  <span className="font-semibold">{item.rating}/5</span>
-                </div>
+                {/* Rating (show only if present) */}
+                {item.rating > 0 && (
+                  <div className="flex items-center mb-4 text-orange-400">
+                    <FaStar className="mr-2" />
+                    <span className="font-semibold">{item.rating}/5</span>
+                  </div>
+                )}
 
                 {/* Feedback */}
-                <p
-                  className="mb-6 leading-relaxed flex-1 text-white"
-                >
-                  “{item.feedback}”
-                </p>
+                <div className="flex-1 flex items-center">
+                  <p
+                    className="mb-6 leading-relaxed text-white w-full"
+                    style={{ marginBottom: 0 }}
+                  >
+                    “{item.feedback}”
+                  </p>
+                </div>
 
                 {/* User */}
-                <div className="flex items-center gap-4 mt-auto">
+                <div className="flex items-center gap-4 mt-auto pt-4">
                   <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center border overflow-hidden" style={{ borderColor: COLORS.gradStart }}>
                     {/* Profile image with fallback icon */}
                     <img
-                      src={getProfileImage(item.name)}
+                      src={
+                        item.image && typeof item.image === "string" && item.image.startsWith("Uploads")
+                          ? `${process.env.REACT_APP_API_URL}/${item.image}`
+                          : getProfileImage(item.name)
+                      }
                       alt={item.name}
                       className="object-cover w-12 h-12 rounded-full"
-                      onError={e => {
-                        e.target.onerror = null;
-                        e.target.style.display = 'none';
-                        e.target.nextSibling && (e.target.nextSibling.style.display='' );
-                      }}
                       style={{ display: "block" }}
                     />
                     <FaUser className="w-7 h-7 text-gray-400" style={{ display: "none" }} />
@@ -165,7 +142,7 @@ export default function TestimonialSection() {
                     <p
                       className="text-sm text-blue-100"
                     >
-                      Sudhosan Skill Solutions
+                      {item.companyName}
                     </p>
                   </div>
                 </div>

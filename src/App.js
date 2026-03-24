@@ -147,8 +147,8 @@ const App = () => {
         <Navbar allData={allData}/>
         <EnquiryPopup open={open} setOpen={setOpen} />
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<AboutPage />} />
+          <Route path="/" element={<Home allData={allData}/>} />
+          <Route path="/about" element={<AboutPage allData={allData} />} />
           <Route path="/jobs" element={<JobsPage allData={allData} />} />
           <Route path="/partners" element={<PartnersPage />} />
           <Route path="/contact" element={<ContactPage />} />

@@ -6,13 +6,13 @@ import { OurMission } from "../Components/AboutPage/OurMission";
 import { SuccessStories } from "../Components/AboutPage/SucessStories";
 import TestimonialSection from "../Components/TestimonialsSection";
 
-export default function AboutPage() {
+export default function AboutPage({allData}) {
     return (
       <>
         <AboutHero/>
         <OurMission />
 
-        <Leadership />
+        <Leadership allData={allData} />
 
         <AboutCTA />
       </>

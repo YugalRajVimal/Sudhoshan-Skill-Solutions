@@ -7,15 +7,15 @@ import PlacementPartners from '../Components/PlacementPartners'
 import { Leadership } from '../Components/AboutPage/LeadershipSection'
 import HomeBlogsSection from '../Components/AboutPage/BlogComp'
 
-const Home = () => {
+const Home = ({allData}) => {
   return (
     <div>
         <HeroSection />
         <ServicesSection />
         <JobSearchSection />
-        <PlacementPartners />   
-        <TestimonialSection />
-        <Leadership />
+        <PlacementPartners allData={allData}/>   
+        <TestimonialSection allData={allData}/>
+        <Leadership allData={allData}/>
     </div>
   )
 }
