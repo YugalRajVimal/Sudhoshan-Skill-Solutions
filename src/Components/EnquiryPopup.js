@@ -3,7 +3,7 @@ import axios from "axios";
 
 const API_URL = process.env.REACT_APP_API_URL || "";
 
-export default function EnquiryPopup({open,setOpen}) {
+export default function EnquiryPopup({ open, setOpen }) {
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -104,6 +104,17 @@ export default function EnquiryPopup({open,setOpen}) {
     setSubmitResult(null);
   }
 
+  // Helper to calculate maxHeight for form container for small screens
+  const getFormMaxHeight = () => {
+    // For screens < 640px, subtract a bit for safe spacing
+    if (typeof window !== "undefined" && window.innerHeight < 600) {
+      // Keep space for overlay and margins
+      return `calc(100vh - 32px)`;
+    }
+    // For larger screens, don't restrict or set a large enough value
+    return "unset";
+  };
+
   return (
     <>
       {/* Overlay */}
@@ -118,7 +129,6 @@ export default function EnquiryPopup({open,setOpen}) {
       {/* Sliding Panel with Button always visible, form expands */}
       <div
         className={`fixed top-1/2 -translate-y-1/2 right-0 flex items-center z-40`}
-        // No h-fit - height now controlled below
         style={{
           height: open ? "auto" : (buttonHeight ? `${buttonHeight}px` : undefined),
           transition: "height 0.3s",
@@ -151,16 +161,30 @@ export default function EnquiryPopup({open,setOpen}) {
             maxWidth: "100vw",
             height: open ? "auto" : (buttonHeight ? `${buttonHeight}px` : undefined),
             transition: "height 0.3s, min-width 0.3s, padding 0.3s, opacity 0.3s",
+            // For mobile/small screens, ensure scrolling if overflow
+            maxHeight: open ? getFormMaxHeight() : undefined,
+            overflowY: open ? "auto" : "hidden",
           }}
         >
           {/* Close */}
           <button
             onClick={() => setOpen(false)}
-            className={`absolute top-4 right-4 text-gray-500 transition-opacity duration-200 ${
+            className={`absolute top-2 right-2 text-gray-500 transition-opacity duration-200 ${
               open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-            }`}
+            } text-4xl font-extrabold hover:bg-red-600 hover:text-white`} // hover red + white text
             tabIndex={open ? 0 : -1}
             aria-label="Close Enquiry Form"
+            style={{
+              width: "2.75rem",
+              height: "2.75rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "1.5rem",
+              lineHeight: 1,
+              transition: "color 0.2s, background 0.2s",
+              borderRadius: "0.6rem"
+            }}
           >
             ✕
           </button>
@@ -171,7 +195,12 @@ export default function EnquiryPopup({open,setOpen}) {
               overflow-y-auto transition-opacity duration-300 
               ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}
             `}
-            style={{ height: open ? "100%" : "0" }}
+            style={{
+              height: open ? "100%" : "0",
+              // On small screens ensure form area can scroll vertically
+              maxHeight: open ? "80vh" : "0",
+              // This maxHeight works together with the parent panel's maxHeight to enable scrolling on smaller screens
+            }}
           >
             {/* Title */}
             <h2 className="text-2xl font-bold text-blue-900 mb-6 mt-2">

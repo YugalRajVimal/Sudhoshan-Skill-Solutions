@@ -6,6 +6,7 @@ function CourseEnrollModal({ course, onClose }) {
     email: "",
     phone: "",
     message: "",
+    classType: "group", // "group" or "single"
   });
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -36,6 +37,7 @@ function CourseEnrollModal({ course, onClose }) {
     if (!form.phone.trim()) newErrors.phone = "Phone number is required.";
     else if (!/^[\d\s\-+()]{7,}$/.test(form.phone))
       newErrors.phone = "Please enter a valid phone number.";
+    // No need to validate classType as a radio group always has one selected
     return newErrors;
   }
 
@@ -61,6 +63,10 @@ function CourseEnrollModal({ course, onClose }) {
         phone: form.phone,
         message: form.message,
         courseTitle: course?.title || "",
+        classType:
+          form.classType === "group"
+            ? "Online Group Classes"
+            : "Online Single Classes",
       };
 
       const response = await fetch(apiUrl, {
@@ -98,6 +104,7 @@ function CourseEnrollModal({ course, onClose }) {
           email: "",
           phone: "",
           message: "",
+          classType: "group",
         });
       } else {
         setSubmitMessage({
@@ -198,6 +205,38 @@ function CourseEnrollModal({ course, onClose }) {
                 disabled={submitting}
               />
               {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+            </div>
+            {/* New: Class Type Option */}
+            <div>
+              <label className="block text-sm text-blue-900 font-medium mb-1">
+                Choose your class type <span className="text-red-500">*</span>
+              </label>
+              <div className="flex flex-row items-center gap-5">
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="classType"
+                    value="group"
+                    checked={form.classType === "group"}
+                    onChange={handleInputChange}
+                    disabled={submitting}
+                    className="accent-orange-500"
+                  />
+                  <span className="ml-2 text-sm">Online Group Classes</span>
+                </label>
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="classType"
+                    value="single"
+                    checked={form.classType === "single"}
+                    onChange={handleInputChange}
+                    disabled={submitting}
+                    className="accent-orange-500"
+                  />
+                  <span className="ml-2 text-sm">Online Single Classes</span>
+                </label>
+              </div>
             </div>
             <div>
               <label className="block text-sm text-blue-900 font-medium mb-1">

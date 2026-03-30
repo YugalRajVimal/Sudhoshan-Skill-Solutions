@@ -1,12 +1,26 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaSearch, FaMapMarkerAlt, FaBriefcase } from "react-icons/fa";
 
-export default function JobSearchSection() {
+/**
+ * JobSearchSection expects allData.jobs prop.
+ * Example usage: <JobSearchSection allData={allData} />
+ */
+export default function JobSearchSection({ allData }) {
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
   const [category, setCategory] = useState("");
   const navigate = useNavigate();
+
+  // Compute unique categories from all job data
+  const categories = useMemo(() => {
+    if (!allData?.jobs || !Array.isArray(allData.jobs)) return [];
+    const cats = allData.jobs
+      .flatMap(job => Array.isArray(job.categories) ? job.categories : [])
+      .filter(Boolean); // Remove falsy values
+    // Deduplicate and filter out empty strings
+    return Array.from(new Set(cats)).filter(c => c && c.trim());
+  }, [allData]);
 
   // Ensure scroll to top on search
   const scrollToTopAndNavigate = (url) => {
@@ -20,11 +34,11 @@ export default function JobSearchSection() {
     const params = new URLSearchParams();
     if (title) params.append("title", title);
     if (location) params.append("location", location);
-    if (category && category !== "Select Category") params.append("category", category);
+    if (category && category !== "Select Category") params.append("categories", category);
     scrollToTopAndNavigate(`/jobs?${params.toString()}`);
   };
 
-  // Populer Searches mapped data
+  // Popular Searches mapped data
   const popularSearches = [
     { label: "Digital Marketing", title: "Digital Marketing" },
     { label: "Web Development", title: "Web Development" },
@@ -94,10 +108,17 @@ export default function JobSearchSection() {
                 name="category"
               >
                 <option>Select Category</option>
-                <option>IT & Software</option>
-                <option>Marketing</option>
-                <option>Finance</option>
-                <option>Customer Support</option>
+                {categories.length === 0 ? (
+                  <option disabled value="">
+                    No categories found
+                  </option>
+                ) : (
+                  categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))
+                )}
               </select>
             </div>
 

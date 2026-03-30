@@ -183,8 +183,8 @@ const App = () => {
           aria-label="Chat on WhatsApp"
           style={{
             position: 'fixed',
-            right: '24px',
-            bottom: '24px',
+            right: '20px',
+            bottom: '100px',
             zIndex: 1000,
           }}
           className="whatsapp-fab group"

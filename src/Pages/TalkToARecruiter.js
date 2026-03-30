@@ -28,9 +28,20 @@ export default function TalkToARecruiterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
     setSuccessMsg("");
     setErrorMsg("");
+
+    // Validate required fields: Name, Email, Phone
+    if (
+      !form.fullName.trim() ||
+      !form.email.trim() ||
+      !form.phone.trim()
+    ) {
+      setErrorMsg("Full Name, Email, and Phone Number are required.");
+      return;
+    }
+
+    setSubmitting(true);
     try {
       const formData = new FormData();
       formData.append("fullName", form.fullName);
@@ -93,6 +104,7 @@ export default function TalkToARecruiterPage() {
                 value={form.fullName}
                 onChange={handleChange}
                 disabled={submitting}
+                required={true}
               />
               {/* Email Address */}
               <FormField
@@ -103,6 +115,7 @@ export default function TalkToARecruiterPage() {
                 value={form.email}
                 onChange={handleChange}
                 disabled={submitting}
+                required={true}
               />
               {/* Phone */}
               <FormField
@@ -113,6 +126,7 @@ export default function TalkToARecruiterPage() {
                 value={form.phone}
                 onChange={handleChange}
                 disabled={submitting}
+                required={true}
               />
               {/* Message */}
               <div>
@@ -189,11 +203,12 @@ function RecruiterInfoItem({ icon, label, value, link }) {
 }
 
 // FormField helper for text, email, and tel
-function FormField({ label, type, placeholder, name, value, onChange, disabled }) {
+function FormField({ label, type, placeholder, name, value, onChange, disabled, required }) {
   return (
     <div>
       <label className="text-xs xs:text-sm text-gray-600 font-medium mb-1 block">
         {label}
+        {required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
       <input
         type={type}
@@ -202,6 +217,7 @@ function FormField({ label, type, placeholder, name, value, onChange, disabled }
         value={value}
         onChange={onChange}
         disabled={disabled}
+        required={required}
         className={`w-full mt-1 border border-blue-200 rounded-md px-4 py-3 shadow-sm
          text-xs xs:text-sm
          focus:ring-2 focus:ring-orange-400 focus:outline-none transition

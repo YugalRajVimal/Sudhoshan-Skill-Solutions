@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import { HiMenu, HiX } from "react-icons/hi";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 // Height for the navbar, for spacer, etc
 const NAVBAR_HEIGHT = 88;
@@ -27,7 +27,13 @@ export default function Navbar({ allData }) {
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
   const [mobileCoursesOpen, setMobileCoursesOpen] = useState(false);
 
+  // For closing dropdown when clicking outside
+  const mobileServicesRef = useRef();
+  const mobileCoursesRef = useRef();
+
+  // For navigation in custom handler
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Move to top on route change
   useEffect(() => {
@@ -74,6 +80,52 @@ export default function Navbar({ allData }) {
       }
     : { backgroundColor: "#1e3a8a" };
 
+  // Close mobile dropdown if clicked outside
+  useEffect(() => {
+    const handleClick = (event) => {
+      if (
+        mobileServicesRef.current &&
+        !mobileServicesRef.current.contains(event.target)
+      ) {
+        setMobileServicesOpen(false);
+      }
+      if (
+        mobileCoursesRef.current &&
+        !mobileCoursesRef.current.contains(event.target)
+      ) {
+        setMobileCoursesOpen(false);
+      }
+    };
+    if (mobileServicesOpen || mobileCoursesOpen) {
+      document.addEventListener("mousedown", handleClick);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+    };
+  }, [mobileServicesOpen, mobileCoursesOpen]);
+
+  // Handlers for mobile menu: click text navigates, click arrow toggles dropdown
+  const handleMobileServicesClick = (e) => {
+    // If clicked on the "Services" text, navigate
+    handleNavClick({ closeMobileDropdowns: true });
+    navigate("/services");
+  };
+
+  const handleMobileServicesArrowClick = (e) => {
+    e.preventDefault();
+    setMobileServicesOpen((v) => !v);
+  };
+
+  const handleMobileCoursesClick = (e) => {
+    handleNavClick({ closeMobileDropdowns: true });
+    navigate("/courses");
+  };
+
+  const handleMobileCoursesArrowClick = (e) => {
+    e.preventDefault();
+    setMobileCoursesOpen((v) => !v);
+  };
+
   return (
     <>
       {/* Custom CSS for nice blur+rounded combo (could go in CSS) */}
@@ -107,7 +159,7 @@ export default function Navbar({ allData }) {
               <img
                 src="/logo.png"
                 alt="Sudhosan Skill Solutions Logo"
-                className="h-16 w-16 bg-white object-contain rounded"
+                className="h-12 w-12 md:h-16 md:w-16 bg-white object-contain rounded"
                 style={{
                   boxShadow: scrolled
                     ? "0px 1px 10px 0px rgba(30,58,138,0.09)"
@@ -115,11 +167,11 @@ export default function Navbar({ allData }) {
                 }}
               />
               <div className="w-fit whitespace-nowrap">
-                <h1 className="text-xl font-bold font-serif text-[#FF7A00] whitespace-nowrap">
+                <h1 className="text-base md:text-xl font-bold font-serif text-[#FF7A00] whitespace-nowrap">
                   Sudhosan Skill Solutions
                 </h1>
                 <p
-                  className="text-xs hidden md:block text-center w-full whitespace-nowrap"
+                  className="text-xs hidden sm:block text-center w-full whitespace-nowrap"
                   style={{ color: "#FFFFFF" }}
                 >
                   DREAM | DISCOVER | DELIVER
@@ -128,7 +180,7 @@ export default function Navbar({ allData }) {
             </div>
 
             {/* Desktop Menu and Recruiter Button */}
-            <div className="hidden lg:flex items-center gap-8">
+            <div className="hidden lg:flex items-center gap-4">
               <ul className="flex items-center gap-4 xl:gap-6 text-sm font-medium">
                 <li>
                   <Link
@@ -249,7 +301,7 @@ export default function Navbar({ allData }) {
               {/* "Talk To A Recruiter" Button */}
               <Link
                 to="/talk-to-a-recruiter"
-                className="ml-6 px-5 py-2 bg-[#FF7A00] hover:bg-[#ff9000] text-white font-bold rounded-full shadow transition-all duration-150 text-sm whitespace-nowrap"
+                className="xl:ml-6 px-5 py-2 bg-[#FF7A00] hover:bg-[#ff9000] text-white font-bold rounded-full shadow transition-all duration-150 text-sm whitespace-nowrap"
                 onClick={handleNavClick}
                 style={{ boxShadow: "0 2px 12px 0 rgba(255, 122, 0, 0.14)" }}
               >
@@ -300,26 +352,36 @@ export default function Navbar({ allData }) {
               </Link>
             </li>
             {/* Services Dropdown (collapsible for mobile) */}
-            <li>
-              <Link
-                to="/services"
-                className="flex items-center gap-1 cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors select-none"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setMobileServicesOpen((v) => !v);
-                }}
-              >
-                Services{" "}
+            <li ref={mobileServicesRef} className="relative">
+              <div className="flex items-center gap-1 text-[#FFFFFF] hover:text-[#FF7A00] transition-colors select-none w-fit">
+                <span
+                  className="cursor-pointer"
+                  onClick={handleMobileServicesClick}
+                  style={{ userSelect: "none", paddingRight: 4 }}
+                  tabIndex={0}
+                  role="button"
+                  aria-label="Go to Services main"
+                  onKeyDown={e => (e.key === "Enter" || e.key === ' ') && handleMobileServicesClick(e)}
+                >
+                  Services
+                </span>
                 <span
                   className={
-                    mobileServicesOpen
+                    "ml-1 flex items-center p-1 rounded-full hover:bg-white/10 cursor-pointer " +
+                    (mobileServicesOpen
                       ? "rotate-180 transition-transform"
-                      : "transition-transform"
+                      : "transition-transform")
                   }
+                  onClick={handleMobileServicesArrowClick}
+                  style={{ transition: "transform 0.2s" }}
+                  tabIndex={0}
+                  role="button"
+                  aria-label="Expand Services menu"
+                  onKeyDown={e => (e.key === "Enter" || e.key === ' ') && handleMobileServicesArrowClick(e)}
                 >
                   <FaChevronDown size={12} />
                 </span>
-              </Link>
+              </div>
               {mobileServicesOpen && (
                 <div className="mt-2 ml-2 bg-white/90 text-[#1F2937] rounded-xl shadow-lg w-full py-2 z-20 backdrop-blur-md">
                   {services.map((service) => (
@@ -336,18 +398,32 @@ export default function Navbar({ allData }) {
               )}
             </li>
             {/* Courses Dropdown (collapsible for mobile) */}
-            <li>
-              <div
-                className="flex items-center gap-1 cursor-pointer text-[#FFFFFF] hover:text-[#FF7A00] transition-colors select-none"
-                onClick={() => setMobileCoursesOpen((v) => !v)}
-              >
-                Courses{" "}
+            <li ref={mobileCoursesRef} className="relative">
+              <div className="flex items-center gap-1 text-[#FFFFFF] hover:text-[#FF7A00] transition-colors select-none w-fit">
+                <span
+                  className="cursor-pointer"
+                  onClick={handleMobileCoursesClick}
+                  style={{ userSelect: "none", paddingRight: 4 }}
+                  tabIndex={0}
+                  role="button"
+                  aria-label="Go to Courses main"
+                  onKeyDown={e => (e.key === "Enter" || e.key === ' ') && handleMobileCoursesClick(e)}
+                >
+                  Courses
+                </span>
                 <span
                   className={
-                    mobileCoursesOpen
+                    "ml-1 flex items-center p-1 rounded-full hover:bg-white/10 cursor-pointer " +
+                    (mobileCoursesOpen
                       ? "rotate-180 transition-transform"
-                      : "transition-transform"
+                      : "transition-transform")
                   }
+                  onClick={handleMobileCoursesArrowClick}
+                  style={{ transition: "transform 0.2s" }}
+                  tabIndex={0}
+                  role="button"
+                  aria-label="Expand Courses menu"
+                  onKeyDown={e => (e.key === "Enter" || e.key === ' ') && handleMobileCoursesArrowClick(e)}
                 >
                   <FaChevronDown size={12} />
                 </span>

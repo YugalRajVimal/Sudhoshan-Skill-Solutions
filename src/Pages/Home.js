@@ -12,7 +12,7 @@ const Home = ({allData}) => {
     <div>
         <HeroSection />
         <ServicesSection />
-        <JobSearchSection />
+        <JobSearchSection  allData={allData} />
         <PlacementPartners allData={allData}/>   
         <TestimonialSection allData={allData}/>
         <Leadership allData={allData}/>

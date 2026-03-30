@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FaMapMarkerAlt, FaBriefcase, FaRupeeSign, FaFilter } from "react-icons/fa";
+import { FaMapMarkerAlt, FaBriefcase, FaRupeeSign, FaFilter, FaBuilding } from "react-icons/fa";
 
 // Utility to parse query parameters
 function useQuery() {
@@ -8,6 +8,7 @@ function useQuery() {
   return React.useMemo(() => new URLSearchParams(search), [search]);
 }
 
+// Helper: Get unique values (optionally mapped) from jobs[key], which may be array or string
 function getUniqueFromJobs(jobs, key, valueMap = null) {
   const set = new Set();
   jobs.forEach(job => {
@@ -19,6 +20,19 @@ function getUniqueFromJobs(jobs, key, valueMap = null) {
     }
   });
   return Array.from(set).filter(Boolean);
+}
+
+// Helper: Get all distinct categories across all jobs (job.categories as array)
+function getUniqueCategories(jobs) {
+  const catSet = new Set();
+  jobs.forEach(job => {
+    if (Array.isArray(job.categories)) {
+      job.categories.forEach(c => {
+        if (typeof c === "string" && c.trim()) catSet.add(c.trim());
+      });
+    }
+  });
+  return Array.from(catSet).sort();
 }
 
 function getUniqueSalaryRanges(jobs) {
@@ -65,14 +79,10 @@ export default function JobsPage({ allData }) {
     [jobs]
   );
   const SALARY_RANGES = useMemo(() => getUniqueSalaryRanges(jobs), [jobs]);
-  const ROLES = useMemo(
-    () => getUniqueFromJobs(jobs, "role", role => role && role.trim()),
-    [jobs]
-  );
-
+  const CATEGORIES = useMemo(() => getUniqueCategories(jobs), [jobs]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedLocations, setSelectedLocations] = useState([]);
   const [selectedSalaryRanges, setSelectedSalaryRanges] = useState([]);
-  const [selectedRoles, setSelectedRoles] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState(jobs);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
@@ -84,7 +94,7 @@ export default function JobsPage({ allData }) {
   useEffect(() => {
     const locationParam = query.get("location");
     const titleParam = query.get("title");
-    const categoryParam = query.get("category");
+    const filtersCategoriesParam = query.get("categories");
 
     if (locationParam) {
       setSelectedLocations(
@@ -93,11 +103,12 @@ export default function JobsPage({ allData }) {
           .filter(loc => !!loc && LOCATIONS.includes(loc))
       );
     }
-    if (categoryParam) {
-      setSelectedRoles(
-        categoryParam
+
+    if (filtersCategoriesParam) {
+      setSelectedCategories(
+        filtersCategoriesParam
           .split(",")
-          .filter(role => !!role && ROLES.includes(role))
+          .filter(cat => !!cat && CATEGORIES.includes(cat))
       );
     }
 
@@ -112,29 +123,34 @@ export default function JobsPage({ allData }) {
           )
       );
     }
-    if (categoryParam) {
-      result = result.filter(job =>
-        categoryParam
-          .split(",")
-          .map(r => r.trim())
-          .includes(job.role)
-      );
-    }
+
     if (titleParam) {
       result = result.filter(job =>
         (job.title || "").toLowerCase().includes(titleParam.toLowerCase())
       );
     }
 
-    setFilteredJobs(result);
+    if (filtersCategoriesParam) {
+      const catsArr = filtersCategoriesParam.split(",").map(s => s.trim());
+      result = result.filter(job =>
+        Array.isArray(job.categories)
+          ? job.categories.some(c => catsArr.includes(c))
+          : false
+      );
+    }
 
+    setFilteredJobs(result);
     // eslint-disable-next-line
-  }, [jobs, query, LOCATIONS, ROLES]);
+  }, [jobs, query, LOCATIONS, CATEGORIES]);
 
   const handleApplyFilters = () => {
+    const params = new URLSearchParams();
+    if (selectedLocations.length > 0) params.set("location", selectedLocations.join(","));
+    if (selectedCategories.length > 0) params.set("categories", selectedCategories.join(","));
+
     navigate({
       pathname: "/jobs",
-      search: "",
+      search: params.toString(),
     });
 
     let result = jobs;
@@ -153,16 +169,17 @@ export default function JobsPage({ allData }) {
         );
       });
     }
-    if (selectedRoles.length > 0) {
+    if (selectedCategories.length > 0) {
       result = result.filter(job =>
-        selectedRoles.includes(job.role)
+        Array.isArray(job.categories)
+          ? job.categories.some(c => selectedCategories.includes(c))
+          : false
       );
     }
     setFilteredJobs(result);
     setShowMobileFilters(false);
   };
 
-  // Handle open modal with job
   const openApplyModal = job => {
     setSelectedJobForApply(job);
     setShowApplyModal(true);
@@ -172,6 +189,9 @@ export default function JobsPage({ allData }) {
     setShowApplyModal(false);
     setSelectedJobForApply(null);
   };
+
+  // --- Here we set a fixed height for the primary scroll area and make both filter and jobs list scrollable (desktop only) ---
+  // We will use 80vh for the main grid height on md+ screens, adjust as needed.
 
   return (
     <section className="bg-gray-50 min-h-screen py-8 px-2 sm:py-14 sm:px-6">
@@ -200,13 +220,13 @@ export default function JobsPage({ allData }) {
               <Filters
                 LOCATIONS={LOCATIONS}
                 SALARY_RANGES={SALARY_RANGES}
-                ROLES={ROLES}
+                CATEGORIES={CATEGORIES}
                 selectedLocations={selectedLocations}
                 setSelectedLocations={setSelectedLocations}
                 selectedSalaryRanges={selectedSalaryRanges}
                 setSelectedSalaryRanges={setSelectedSalaryRanges}
-                selectedRoles={selectedRoles}
-                setSelectedRoles={setSelectedRoles}
+                selectedCategories={selectedCategories}
+                setSelectedCategories={setSelectedCategories}
                 onApply={handleApplyFilters}
                 isMobile={true}
                 onClose={() => setShowMobileFilters(false)}
@@ -215,21 +235,38 @@ export default function JobsPage({ allData }) {
           )}
         </div>
         {/* Large screens: Filters in grid sidebar */}
-        <div className="grid sm:grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="hidden sm:block">
+        <div
+          className="hidden md:grid grid-cols-1 md:grid-cols-4 gap-8"
+          style={{ height: "80vh", minHeight: "500px", maxHeight: "1000px" }} // fixed grid height for scroll separation, can adjust
+        >
+          {/* Filter sidebar, scrollable within its segment */}
+          <div
+            className="hidden sm:block h-full"
+            style={{ maxHeight: "100%", height: "100%", overflow: "auto" }}
+          >
             <Filters
               LOCATIONS={LOCATIONS}
               SALARY_RANGES={SALARY_RANGES}
-              ROLES={ROLES}
+              CATEGORIES={CATEGORIES}
               selectedLocations={selectedLocations}
               setSelectedLocations={setSelectedLocations}
               selectedSalaryRanges={selectedSalaryRanges}
               setSelectedSalaryRanges={setSelectedSalaryRanges}
-              selectedRoles={selectedRoles}
-              setSelectedRoles={setSelectedRoles}
+              selectedCategories={selectedCategories}
+              setSelectedCategories={setSelectedCategories}
               onApply={handleApplyFilters}
             />
           </div>
+          {/* Job Listings with scroll in main content (spanning 3 columns) */}
+          <div
+            className="col-span-1 md:col-span-3 h-full"
+            style={{ maxHeight: "100%", height: "100%", overflow: "auto" }}
+          >
+            <JobListings jobs={filteredJobs} onApplyClick={openApplyModal} />
+          </div>
+        </div>
+        {/* For small screens, use the original stacking layout */}
+        <div className="md:hidden grid sm:grid-cols-1">
           <JobListings jobs={filteredJobs} onApplyClick={openApplyModal} />
         </div>
       </div>
@@ -243,16 +280,17 @@ export default function JobsPage({ allData }) {
   );
 }
 
+// Filters now supports categories!
 function Filters({
   LOCATIONS = [],
   SALARY_RANGES = [],
-  ROLES = [],
+  CATEGORIES = [],
   selectedLocations,
   setSelectedLocations,
   selectedSalaryRanges,
   setSelectedSalaryRanges,
-  selectedRoles,
-  setSelectedRoles,
+  selectedCategories = [],
+  setSelectedCategories,
   onApply,
   isMobile = false,
   onClose,
@@ -265,9 +303,20 @@ function Filters({
     }
   };
 
+  // On desktop, make filter body scrollable if tall, else let grow to max parent height
   return (
     <div
-      className={`bg-white rounded-xl shadow-md p-4 sm:p-6 h-fit ${isMobile ? "w-full max-w-md mx-auto" : ""}`}
+      className={`bg-white rounded-xl p-4 sm:p-6 h-fit ${isMobile ? "w-full max-w-md mx-auto" : ""}`}
+      style={
+        isMobile
+          ? {}
+          : {
+              // Let parent control maxHeight via md:grid, but prevent huge content
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+            }
+      }
     >
       <div className="flex items-center gap-2 mb-6">
         <FaFilter size={18} className="text-orange-500" />
@@ -284,79 +333,96 @@ function Filters({
         )}
       </div>
 
-      {/* Location */}
-      <div className="mb-6">
-        <h4 className="font-medium mb-2 font-serif text-sm sm:text-base">Location</h4>
-        <div className="space-y-2 text-xs sm:text-sm">
-          {LOCATIONS.length === 0 ? (
-            <div className="text-gray-400">No locations found</div>
-          ) : (
-            LOCATIONS.map(loc => (
-              <label key={loc} className="flex gap-2 cursor-pointer items-center">
-                <input
-                  type="checkbox"
-                  checked={selectedLocations.includes(loc)}
-                  onChange={() => handleCheckboxChange(setSelectedLocations, selectedLocations, loc)}
-                  className="accent-blue-900"
-                />{" "}
-                <span>{loc}</span>
-              </label>
-            ))
-          )}
-        </div>
-      </div>
-
-      {/* Salary */}
-      <div className="mb-6">
-        <h4 className="font-medium mb-2 font-serif text-sm sm:text-base">Salary Range</h4>
-        <div className="space-y-2 text-xs sm:text-sm">
-          {SALARY_RANGES.length === 0 ? (
-            <div className="text-gray-400">No salary ranges found</div>
-          ) : (
-            SALARY_RANGES.map(range => (
-              <label key={range} className="flex gap-2 cursor-pointer items-center">
-                <input
-                  type="checkbox"
-                  checked={selectedSalaryRanges.includes(range)}
-                  onChange={() => handleCheckboxChange(setSelectedSalaryRanges, selectedSalaryRanges, range)}
-                  className="accent-blue-900"
-                />{" "}
-                <span>{range}</span>
-              </label>
-            ))
-          )}
-        </div>
-      </div>
-
-      {/* Role */}
-      <div className="mb-6">
-        <h4 className="font-medium mb-2 font-serif text-sm sm:text-base">Job Role</h4>
-        <div className="space-y-2 text-xs sm:text-sm">
-          {ROLES.length === 0 ? (
-            <div className="text-gray-400">No job roles found</div>
-          ) : (
-            ROLES.map(role => (
-              <label key={role} className="flex gap-2 cursor-pointer items-center">
-                <input
-                  type="checkbox"
-                  checked={selectedRoles.includes(role)}
-                  onChange={() => handleCheckboxChange(setSelectedRoles, selectedRoles, role)}
-                  className="accent-blue-900"
-                />{" "}
-                <span>{role}</span>
-              </label>
-            ))
-          )}
-        </div>
-      </div>
-
-      <button
-        className="w-full bg-blue-900 text-white py-2 rounded-md hover:bg-blue-800 text-sm sm:text-base"
-        onClick={onApply}
-        type="button"
+      {/* Scrollable body for filter options */}
+      <div
+        style={
+          isMobile
+            ? undefined
+            : {
+                flex: 1,
+                overflowY: "auto",
+                minHeight: 0,
+                paddingBottom: "1rem",
+              }
+        }
       >
-        Apply Filters
-      </button>
+        {/* Location */}
+        <div className="mb-6">
+          <h4 className="font-medium mb-2 font-serif text-sm sm:text-base">Location</h4>
+          <div className="space-y-2 text-xs sm:text-sm">
+            {LOCATIONS.length === 0 ? (
+              <div className="text-gray-400">No locations found</div>
+            ) : (
+              LOCATIONS.map(loc => (
+                <label key={loc} className="flex gap-2 cursor-pointer items-center">
+                  <input
+                    type="checkbox"
+                    checked={selectedLocations.includes(loc)}
+                    onChange={() => handleCheckboxChange(setSelectedLocations, selectedLocations, loc)}
+                    className="accent-blue-900"
+                  />{" "}
+                  <span>{loc}</span>
+                </label>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Salary */}
+        <div className="mb-6">
+          <h4 className="font-medium mb-2 font-serif text-sm sm:text-base">Salary Range</h4>
+          <div className="space-y-2 text-xs sm:text-sm">
+            {SALARY_RANGES.length === 0 ? (
+              <div className="text-gray-400">No salary ranges found</div>
+            ) : (
+              SALARY_RANGES.map(range => (
+                <label key={range} className="flex gap-2 cursor-pointer items-center">
+                  <input
+                    type="checkbox"
+                    checked={selectedSalaryRanges.includes(range)}
+                    onChange={() => handleCheckboxChange(setSelectedSalaryRanges, selectedSalaryRanges, range)}
+                    className="accent-blue-900"
+                  />{" "}
+                  <span>{range}</span>
+                </label>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Category */}
+        <div className="mb-6">
+          <h4 className="font-medium mb-2 font-serif text-sm sm:text-base">Category</h4>
+          <div className="space-y-2 text-xs sm:text-sm">
+            {CATEGORIES.length === 0 ? (
+              <div className="text-gray-400">No categories found</div>
+            ) : (
+              CATEGORIES.map(cat => (
+                <label key={cat} className="flex gap-2 cursor-pointer items-center">
+                  <input
+                    type="checkbox"
+                    checked={selectedCategories.includes(cat)}
+                    onChange={() => handleCheckboxChange(setSelectedCategories, selectedCategories, cat)}
+                    className="accent-blue-900"
+                  />{" "}
+                  <span>{cat}</span>
+                </label>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Apply Button at the bottom (sticky, not scrolled away) */}
+      <div className={isMobile ? "" : "pt-3"}>
+        <button
+          className="w-full bg-blue-900 text-white py-2 rounded-md hover:bg-blue-800 text-sm sm:text-base"
+          onClick={onApply}
+          type="button"
+        >
+          Apply Filters
+        </button>
+      </div>
     </div>
   );
 }
@@ -375,10 +441,8 @@ function ApplyModal({ open, job, onClose }) {
   const [submitMessage, setSubmitMessage] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // Track modal height for scroll strategy
   const modalRef = useRef(null);
 
-  // Reset form on close or job change
   React.useEffect(() => {
     setForm({
       name: "",
@@ -395,13 +459,11 @@ function ApplyModal({ open, job, onClose }) {
 
   if (!open || !job) return null;
 
-  // Required fields: name, email, phone, resume
   function validate(form) {
     const e = {};
     if (!form.name.trim()) e.name = "Name is required";
     if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email)) e.email = "Valid email required";
     if (!form.phone.trim() || !/^(\d{10}|\+?\d{11,13})$/.test(form.phone.replace(/\s+/g, ''))) e.phone = "Valid phone is required";
-    if (!form.resume) e.resume = "Resume is required";
     return e;
   }
 
@@ -421,7 +483,6 @@ function ApplyModal({ open, job, onClose }) {
       setSubmitting(true);
       setSubmitMessage(null);
       try {
-        // Compose formData as required by API
         const formData = new FormData();
         formData.append("name", form.name.trim());
         formData.append("email", form.email.trim());
@@ -430,9 +491,10 @@ function ApplyModal({ open, job, onClose }) {
         formData.append("jobTitle", job.title);
         formData.append("jobCompany", job.company);
         formData.append("jobLocation", job.location);
-        formData.append("resume", form.resume);
+        if (form.resume) {
+          formData.append("resume", form.resume);
+        }
 
-        // Make the POST call to the backend job-apply route
         const API_URL = process.env.REACT_APP_API_URL || (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.REACT_APP_API_URL) || "";
         let apiUrl = (API_URL || "").replace(/\/$/, "") + "/api/job-apply";
 
@@ -442,7 +504,6 @@ function ApplyModal({ open, job, onClose }) {
         });
 
         if (!response.ok) {
-          // Try show error returned from API
           let msg = "An error occurred while submitting your application.";
           if (response.headers.get("content-type")?.includes("application/json")) {
             const payload = await response.json();
@@ -452,14 +513,12 @@ function ApplyModal({ open, job, onClose }) {
           }
           setSubmitMessage({ type: "error", text: msg });
         } else {
-          // Show API success message
           const payload = await (response.headers.get("content-type")?.includes("application/json") ? response.json() : response.text());
           let msg = typeof payload === "string"
             ? payload
             : (payload?.message || "Your application was submitted successfully.");
           setSubmitted(true);
           setSubmitMessage({ type: "success", text: msg });
-          // Optionally auto-close modal after short delay (replace with a callback if you want to update parent or refresh)
           setTimeout(() => {
             onClose && onClose();
           }, 2200);
@@ -472,13 +531,10 @@ function ApplyModal({ open, job, onClose }) {
     }
   }
 
-  // Handles clicking outside modal to close
   function handleOverlayClick(e) {
     if (e.target === e.currentTarget) onClose();
   }
 
-  // Make modal content scrollable if content > viewport height
-  // (Responsive with Tailwind, fallback)
   return (
     <div
       className="fixed z-[100] top-0 left-0 w-full h-full bg-black bg-opacity-40 flex items-center justify-center px-2"
@@ -486,7 +542,6 @@ function ApplyModal({ open, job, onClose }) {
       aria-modal="true"
       role="dialog"
       style={{
-        // Prevent "full page scroll" when modal open
         overflowY: 'auto'
       }}
     >
@@ -576,7 +631,7 @@ function ApplyModal({ open, job, onClose }) {
             </div>
             <div>
               <label className="block text-sm text-blue-900 font-medium mb-1">
-                Upload Resume <span className="text-red-500">*</span>
+                Upload Resume <span className="text-gray-400">(optional)</span>
               </label>
               <input
                 className={`w-full border ${errors.resume ? "border-red-500" : "border-gray-300"} px-3 py-2 rounded-md`}
@@ -584,9 +639,9 @@ function ApplyModal({ open, job, onClose }) {
                 name="resume"
                 accept=".pdf,.doc,.docx"
                 onChange={handleInputChange}
-                required
                 disabled={submitting}
               />
+              {/* Resume is now optional; show error only if backend or client checks complain */}
               {errors.resume && <p className="text-red-500 text-xs mt-1">{errors.resume}</p>}
             </div>
             {submitMessage?.type === "error" && (
@@ -634,26 +689,45 @@ function ApplyModal({ open, job, onClose }) {
   );
 }
 
+// JobListings for 2-column layout, fits inside a scrollable container.
+// ADD minimumQualification LINE BELOW TITLE, IF DEFINED
 function JobListings({ jobs, onApplyClick }) {
-  return (
-    <div className="col-span-1 md:col-span-3 space-y-5 sm:space-y-6 w-full">
-      {jobs.length === 0 ? (
+  if (!jobs.length) {
+    return (
+      <div className="col-span-1 md:col-span-3">
         <div className="text-center text-gray-500 py-10">No jobs found.</div>
-      ) : (
-        jobs.map((job, i) => (
+      </div>
+    );
+  }
+
+  return (
+    <div className="col-span-1 md:col-span-3 w-full">
+      {/* On big screens (md+): 2 columns, sm and down: 1 column */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
+        {jobs.map((job, i) => (
           <div
             key={i}
-            className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border-l-4 border-blue-900 hover:shadow-md transition"
+            className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border-l-4 border-blue-900 hover:shadow-md transition flex flex-col justify-between h-full"
           >
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
               <div>
                 <h3 className="text-base xs:text-lg font-semibold text-blue-900 font-serif">
                   {job.title}
                 </h3>
-                <p className="text-gray-600 text-xs xs:text-sm mb-2">
-                  {job.company}
-                </p>
+                {/* Render minimumQualification if present */}
+                {job.minimumQualification && (
+                  <div className="text-xs xs:text-sm text-gray-700 mt-1 mb-1 flex items-center">
+                    <span className="font-semibold text-gray-600 mr-1">Min. Qualification:</span>
+                    <span>{job.minimumQualification}</span>
+                  </div>
+                )}
+                {/* <p className="text-gray-600 text-xs xs:text-sm mb-2 flex items-center gap-1">
+                  
+                </p> */}
                 <div className="flex flex-col xs:flex-row xs:gap-5 gap-2 text-xs xs:text-sm text-gray-500 mt-1">
+                  <span className="flex items-center gap-1">
+                    <FaBuilding size={13} /> {job.company}
+                  </span>
                   <span className="flex items-center gap-1">
                     <FaMapMarkerAlt size={13} /> {job.location}
                   </span>
@@ -664,10 +738,22 @@ function JobListings({ jobs, onApplyClick }) {
                     <FaBriefcase size={13} /> {job.type}
                   </span>
                 </div>
+                {(job.categories && job.categories.length > 0) && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {job.categories.map((cat, idx) => (
+                      <span
+                        key={cat + idx}
+                        className="inline-block bg-orange-100 text-orange-800 text-xs px-2 py-0.5 rounded font-semibold"
+                      >
+                        {cat}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
               <div className="flex justify-end">
                 <button
-                  className="mt-2 md:mt-0 bg-orange-500 hover:bg-orange-600 text-white px-4 sm:px-6 py-2 rounded-md text-sm sm:text-base w-full xs:w-auto"
+                  className="mt-2 md:mt-0 whitespace-nowrap bg-orange-500 hover:bg-orange-600 text-white px-4 sm:px-6 py-2 rounded-md text-sm sm:text-base w-full xs:w-auto"
                   onClick={() => onApplyClick && onApplyClick(job)}
                   type="button"
                 >
@@ -676,8 +762,8 @@ function JobListings({ jobs, onApplyClick }) {
               </div>
             </div>
           </div>
-        ))
-      )}
+        ))}
+      </div>
     </div>
   );
 }
