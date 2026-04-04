@@ -138,6 +138,20 @@ const App = () => {
       });
   }, []);
 
+     // Decide FAB bottom position depending on screen height
+     const [fabBottom, setFabBottom] = useState(100);
+
+     useEffect(() => {
+       function updateFabBottom() {
+         // If screen height < 600px, reduce bottom to 30px, else use 100px
+         setFabBottom(window.innerHeight < 600 ? 30 : 100);
+       }
+
+       updateFabBottom();
+       window.addEventListener('resize', updateFabBottom);
+       return () => window.removeEventListener('resize', updateFabBottom);
+     }, []);
+
 
 
   return (
@@ -175,25 +189,25 @@ const App = () => {
         </Routes>
         <Footer allData={allData} />
 
-        {/* WhatsApp floating action button */}
-        <a
-          href={`https://wa.me/${WHATSAPP_NUMBER}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Chat on WhatsApp"
-          style={{
-            position: 'fixed',
-            right: '20px',
-            bottom: '100px',
-            zIndex: 1000,
-          }}
-          className="whatsapp-fab group"
-        >
-          <FaWhatsapp
-            size={48}
-            className="rounded-full bg-green-500 text-white p-2 hover:bg-green-600 transition-all shadow-lg"
-          />
-        </a>
+      
+            <a
+              href={`https://wa.me/${WHATSAPP_NUMBER}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Chat on WhatsApp"
+              style={{
+                position: 'fixed',
+                right: '20px',
+                bottom: `${fabBottom}px`,
+                zIndex: 1000,
+              }}
+              className="whatsapp-fab group"
+            >
+              <FaWhatsapp
+                size={48}
+                className="rounded-full bg-green-500 text-white p-2 hover:bg-green-600 transition-all shadow-lg"
+              />
+            </a>
       </div>
     </Router>
   );

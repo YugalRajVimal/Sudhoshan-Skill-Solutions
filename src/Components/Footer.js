@@ -148,7 +148,7 @@ export default function Footer({ allData }) {
               alt="Sudhosan Skill Solutions Logo"
               className="h-14 w-14 bg-white object-contain rounded mb-4"
             />
-            <h2 className="text-lg sm:text-2xl font-bold font-serif text-[#FF7A00]">Sudhosan Skill Solutions</h2>
+            <h2 className="text-lg sm:text-2xl font-bold font-serif text-[#FF7A00] whitespace-nowrap md:whitespace-pre-line">Sudhosan Skill Solutions</h2>
             <p className="text-xs w-full mb-4" style={{ color: "#FFFFFF" }}>DREAM | DISCOVER | DELIVER</p>
             <p className="text-blue-100 text-sm leading-relaxed">
               Sudhosan Skill Solutions Pvt. Ltd. bridges the gap between education and employment through industry-aligned training, career guidance, and direct placement support across India.
@@ -237,8 +237,8 @@ export default function Footer({ allData }) {
                 <span>08062178899</span>
               </div>
               <div className="flex items-center gap-3">
-                <FaEnvelope className="text-orange-400 flex-shrink-0" />
-                <span>info@sudhosanskillsolutions.in</span>
+                <FaEnvelope className="text-orange-400 flex-shrink-0 " />
+                <span className="break-all">info@sudhosanskillsolutions.in</span>
               </div>
             </div>
             {/* Subscribe for mobile and tablet views */}
