@@ -221,12 +221,12 @@ export default function EnquiryPopup({ open, setOpen }) {
             )}
 
             {/* Form */}
-            <form className="space-y-4" onSubmit={handleSubmit} onReset={handleReset} autoComplete="off">
+            <form className="space-y-2" onSubmit={handleSubmit} onReset={handleReset} autoComplete="off">
               <input
                 type="text"
                 name="fullName"
                 placeholder="Full Name *"
-                className="w-full border rounded-md p-3"
+                className="w-full border rounded-md p-1 lg:p-3"
                 value={form.fullName}
                 onChange={handleChange}
                 required
@@ -237,7 +237,7 @@ export default function EnquiryPopup({ open, setOpen }) {
                 type="email"
                 name="email"
                 placeholder="Email Address *"
-                className="w-full border rounded-md p-3"
+                className="w-full border rounded-md p-1 lg:p-3"
                 value={form.email}
                 onChange={handleChange}
                 required
@@ -249,7 +249,7 @@ export default function EnquiryPopup({ open, setOpen }) {
                 type="tel"
                 name="phone"
                 placeholder="Phone Number *"
-                className="w-full border rounded-md p-3"
+                className="w-full border rounded-md p-1 lg:p-3"
                 value={form.phone}
                 onChange={handleChange}
                 required
@@ -261,7 +261,7 @@ export default function EnquiryPopup({ open, setOpen }) {
                 type="text"
                 name="location"
                 placeholder="Location *"
-                className="w-full border rounded-md p-3"
+                className="w-full border rounded-md p-1 lg:p-3"
                 value={form.location}
                 onChange={handleChange}
                 required
@@ -270,7 +270,7 @@ export default function EnquiryPopup({ open, setOpen }) {
 
               <select
                 name="enquiryFor"
-                className="w-full border rounded-md p-3"
+                className="w-full border rounded-md p-1 lg:p-3"
                 value={form.enquiryFor}
                 onChange={handleChange}
                 required
@@ -292,7 +292,7 @@ export default function EnquiryPopup({ open, setOpen }) {
                 name="message"
                 rows="3"
                 placeholder="Your Message"
-                className="w-full border rounded-md p-3"
+                className="w-full border rounded-md p-1 lg:p-3"
                 value={form.message}
                 onChange={handleChange}
                 disabled={submitting}

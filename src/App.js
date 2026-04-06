@@ -113,6 +113,10 @@ const App = () => {
 
   const [open, setOpen] = useState(false);
 
+  // Decide FAB bottom and side position depending on screen height
+  const [fabBottom, setFabBottom] = useState(100);
+  const [fabSide, setFabSide] = useState("right"); // "right" or "left"
+  const [fabSideValue, setFabSideValue] = useState("20px");
 
   useEffect(() => {
     fetchAllData()
@@ -138,21 +142,32 @@ const App = () => {
       });
   }, []);
 
-     // Decide FAB bottom position depending on screen height
-     const [fabBottom, setFabBottom] = useState(100);
+  useEffect(() => {
+    function updateFabPosition() {
+      // If screen height < 600px, reduce bottom to 30px and move to left, else use 100px and right
+      if (window.innerHeight < 600) {
+        setFabBottom(30);
+        setFabSide("left");
+        setFabSideValue("20px");
+      } else {
+        setFabBottom(100);
+        setFabSide("right");
+        setFabSideValue("20px");
+      }
+    }
 
-     useEffect(() => {
-       function updateFabBottom() {
-         // If screen height < 600px, reduce bottom to 30px, else use 100px
-         setFabBottom(window.innerHeight < 600 ? 30 : 100);
-       }
+    updateFabPosition();
+    window.addEventListener('resize', updateFabPosition);
+    return () => window.removeEventListener('resize', updateFabPosition);
+  }, []);
 
-       updateFabBottom();
-       window.addEventListener('resize', updateFabBottom);
-       return () => window.removeEventListener('resize', updateFabBottom);
-     }, []);
-
-
+  // Dynamic style for the whatsapp fab - right or left depending on condition
+  const whatsappFabStyle = {
+    position: 'fixed',
+    [fabSide]: fabSideValue,
+    bottom: `${fabBottom}px`,
+    zIndex: 1000,
+  };
 
   return (
     <Router>
@@ -178,36 +193,26 @@ const App = () => {
           <Route path="/courses" element={<Cources allData={allData} />} />
           <Route path="/courses/:slug" element={<CourseDetailsPage allData={allData} />} />
 
-
-        <Route path="/terms-and-conditions" element={<TermsConditions />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-        <Route path="/refund-and-cancellation-policy" element={<RefundPolicy />} />
-
-
-
+          <Route path="/terms-and-conditions" element={<TermsConditions />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/refund-and-cancellation-policy" element={<RefundPolicy />} />
 
         </Routes>
         <Footer allData={allData} />
 
-      
-            <a
-              href={`https://wa.me/${WHATSAPP_NUMBER}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Chat on WhatsApp"
-              style={{
-                position: 'fixed',
-                right: '20px',
-                bottom: `${fabBottom}px`,
-                zIndex: 1000,
-              }}
-              className="whatsapp-fab group"
-            >
-              <FaWhatsapp
-                size={48}
-                className="rounded-full bg-green-500 text-white p-2 hover:bg-green-600 transition-all shadow-lg"
-              />
-            </a>
+        <a
+          href={`https://wa.me/${WHATSAPP_NUMBER}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Chat on WhatsApp"
+          style={whatsappFabStyle}
+          className="whatsapp-fab group"
+        >
+          <FaWhatsapp
+            size={48}
+            className="rounded-full bg-green-500 text-white p-2 hover:bg-green-600 transition-all shadow-lg"
+          />
+        </a>
       </div>
     </Router>
   );

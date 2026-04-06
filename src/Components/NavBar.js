@@ -323,7 +323,7 @@ export default function Navbar({ allData }) {
       {/* Mobile Menu (slide down/absolute) */}
       {menuOpen && (
         <div
-          className="fixed md:hidden left-2 right-2 top-[calc(16px+88px)] z-50 rounded-2xl shadow-lg overflow-hidden backdrop-blur-md"
+          className="fixed lg:hidden left-2 right-2 top-[calc(16px+88px)] z-50 rounded-2xl shadow-lg overflow-hidden backdrop-blur-md"
           style={{
             background: "linear-gradient(112deg, #1FA2FFcc 0%, #0072FFd2 85%)",
             border: "1px solid rgba(30,58,138,0.10)",
