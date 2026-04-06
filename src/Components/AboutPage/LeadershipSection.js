@@ -12,6 +12,16 @@ export function Leadership({ allData }) {
     return "orange";
   }
 
+  // Sort team members: orange border (founders/other, not heads) come first, then blue border (heads)
+  const sortedTeamMembers = [...teamMembers].sort((a, b) => {
+    const aBorder = getBorder(a);
+    const bBorder = getBorder(b);
+    // Orange first, then blue (or others, if ever present)
+    if (aBorder === "orange" && bBorder === "blue") return -1;
+    if (aBorder === "blue" && bBorder === "orange") return 1;
+    return 0;
+  });
+
   React.useEffect(() => {
     if (Array.isArray(allData?.teamMembers)) {
       console.log("All team members:", allData.teamMembers);
@@ -28,12 +38,12 @@ export function Leadership({ allData }) {
           The Minds Behind the Mission United by one vision — building India's most impactful career platform.
         </p>
         <div className="flex flex-wrap justify-center gap-10">
-          {teamMembers.length === 0 ? (
+          {sortedTeamMembers.length === 0 ? (
             <div className="text-gray-400 w-full py-10 text-lg font-medium">
               Team information coming soon.
             </div>
           ) : (
-            teamMembers.map((member, i) => {
+            sortedTeamMembers.map((member, i) => {
               const isBlue = getBorder(member) === "blue";
               const cardBorderClass = isBlue ? "border-blue-500" : "border-orange-400";
               const imgBorderClass = isBlue ? "border-blue-600" : "border-orange-500";
