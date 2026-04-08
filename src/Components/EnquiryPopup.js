@@ -168,25 +168,12 @@ export default function EnquiryPopup({ open, setOpen }) {
         >
           {/* Close */}
           <button
+            className="absolute right-6 pr-2 top-4 text-2xl font-bold text-gray-800 hover:text-orange-500"
+            aria-label="Close"
             onClick={() => setOpen(false)}
-            className={`absolute top-2 right-2 text-gray-500 transition-opacity duration-200 ${
-              open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-            } text-4xl font-extrabold hover:bg-red-600 hover:text-white`} // hover red + white text
-            tabIndex={open ? 0 : -1}
-            aria-label="Close Enquiry Form"
-            style={{
-              width: "2.75rem",
-              height: "2.75rem",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "1.5rem",
-              lineHeight: 1,
-              transition: "color 0.2s, background 0.2s",
-              borderRadius: "0.6rem"
-            }}
+            type="button"
           >
-            ✕
+            ×
           </button>
 
           {/* Content visible only when open */}
