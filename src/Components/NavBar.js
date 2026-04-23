@@ -63,6 +63,10 @@ export default function Navbar({ allData }) {
       ? allData.courses
       : [];
 
+  // Desktop course scroll logic and "Show more" button
+  const [showAllCourses, setShowAllCourses] = useState(false);
+  const visibleCourses = showAllCourses ? courses : courses.slice(0, 5);
+
   // Desktop Nav Styles for rounded, non-full and blur when scrolled
   const navbarContainerClass =
     "fixed left-0 top-0 right-0 z-40 flex justify-center pointer-events-none";
@@ -126,6 +130,10 @@ export default function Navbar({ allData }) {
     setMobileCoursesOpen((v) => !v);
   };
 
+  // Mobile course scroll logic and "Show more/less" button
+  const [showAllMobileCourses, setShowAllMobileCourses] = useState(false);
+  const visibleMobileCourses = showAllMobileCourses ? courses : courses.slice(0, 5);
+
   return (
     <>
       {/* Custom CSS for nice blur+rounded combo (could go in CSS) */}
@@ -134,6 +142,27 @@ export default function Navbar({ allData }) {
           box-shadow: 0 8px 32px 0 rgba(34,92,230,0.12), 0 1.5px 5px 0 rgba(30,58,138,0.05);
           transition: box-shadow .2s, background .22s;
           border-radius: 2rem;
+        }
+        .course-scroll-bar {
+          overflow-y: auto;
+          max-height: 288px; /* fits approximately 5-6 items at 48px each, with some space */
+        }
+        @media (max-width: 1023px) {
+          .mobile-course-scroll-bar {
+            overflow-y: auto;
+            max-height: 284px;
+          }
+        }
+        .scroll-bar-style::-webkit-scrollbar {
+          width: 8px;
+        }
+        .scroll-bar-style::-webkit-scrollbar-thumb {
+          background: rgba(30,58,138,0.12);
+          border-radius: 8px;
+        }
+        .scroll-bar-style {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(30,58,138,0.13) transparent;
         }
       `}</style>
       {/* Outer wrapper */}
@@ -236,7 +265,7 @@ export default function Navbar({ allData }) {
                     </div>
                   )}
                 </li>
-                {/* Courses Dropdown */}
+                {/* Courses Dropdown with scroll and show more */}
                 <li
                   className="relative"
                   onMouseEnter={() => setCoursesOpen(true)}
@@ -249,15 +278,16 @@ export default function Navbar({ allData }) {
                   >
                     Courses <FaChevronDown size={12} />
                   </Link>
-                  {coursesOpen && (
+                  {coursesOpen && courses.length > 0 && (
                     <div
-                      className="absolute bottom-100  left-0 bg-white/95 text-[#1F2937] rounded-2xl shadow-lg w-80 py-2 z-20 backdrop-blur-md"
+                      className="absolute bottom-100 left-0 bg-white/95 text-[#1F2937] rounded-2xl shadow-lg w-80 py-2 z-20 backdrop-blur-md scroll-bar-style course-scroll-bar"
                       style={{
                         backdropFilter: "blur(7px)",
                         WebkitBackdropFilter: "blur(7px)",
                         border: "1px solid rgba(30,58,138,0.04)"
-                      }}>
-                      {courses.map((course) => (
+                      }}
+                    >
+                      {visibleCourses.map((course) => (
                         <Link
                           key={course.slug}
                           to={`/courses/${course.slug}`}
@@ -267,6 +297,15 @@ export default function Navbar({ allData }) {
                           {course.title}
                         </Link>
                       ))}
+                      {courses.length > 5 && (
+                        <button
+                          className="block w-full mt-2 text-xs text-blue-700 hover:text-blue-800 underline focus:outline-none"
+                          style={{ background: "none", border: "none" }}
+                          onClick={() => setShowAllCourses(val => !val)}
+                        >
+                          {showAllCourses ? "Show Less" : `Show More (${courses.length - 5})`}
+                        </button>
+                      )}
                     </div>
                   )}
                 </li>
@@ -397,7 +436,7 @@ export default function Navbar({ allData }) {
                 </div>
               )}
             </li>
-            {/* Courses Dropdown (collapsible for mobile) */}
+            {/* Courses Dropdown (collapsible for mobile) with scroll and show more/less */}
             <li ref={mobileCoursesRef} className="relative">
               <div className="flex items-center gap-1 text-[#FFFFFF] hover:text-[#FF7A00] transition-colors select-none w-fit">
                 <span
@@ -428,9 +467,9 @@ export default function Navbar({ allData }) {
                   <FaChevronDown size={12} />
                 </span>
               </div>
-              {mobileCoursesOpen && (
-                <div className="mt-2 ml-2 bg-white/95 text-[#1F2937] rounded-2xl shadow-lg w-full py-2 z-20 backdrop-blur-md">
-                  {courses.map((course) => (
+              {mobileCoursesOpen && courses.length > 0 && (
+                <div className="mt-2 ml-2 bg-white/95 text-[#1F2937] rounded-2xl shadow-lg w-full py-2 z-20 backdrop-blur-md scroll-bar-style mobile-course-scroll-bar">
+                  {visibleMobileCourses.map((course) => (
                     <Link
                       key={course.slug}
                       to={`/courses/${course.slug}`}
@@ -440,6 +479,15 @@ export default function Navbar({ allData }) {
                       {course.title}
                     </Link>
                   ))}
+                  {courses.length > 5 && (
+                    <button
+                      className="block w-full mt-2 text-xs text-blue-700 hover:text-blue-800 underline focus:outline-none"
+                      style={{ background: "none", border: "none" }}
+                      onClick={() => setShowAllMobileCourses(val => !val)}
+                    >
+                      {showAllMobileCourses ? "Show Less" : `Show More (${courses.length - 5})`}
+                    </button>
+                  )}
                 </div>
               )}
             </li>

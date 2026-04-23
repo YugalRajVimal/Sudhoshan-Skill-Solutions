@@ -178,7 +178,7 @@ export default function Footer({ allData }) {
                 servicesWithSlugs.map(service => (
                   <li key={service.slug}>
                     <a
-                      href={`/services/${service.slug}`}
+                      href={`/services${service.slug}`}
                       className="hover:text-orange-400 transition"
                     >
                       {service.label}

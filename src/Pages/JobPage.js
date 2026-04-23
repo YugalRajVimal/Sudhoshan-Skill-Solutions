@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt, FaBriefcase, FaRupeeSign, FaFilter, FaBuilding } from "react-icons/fa";
+import { GiConsoleController } from "react-icons/gi";
 
 // Utility to parse query parameters
 function useQuery() {
@@ -32,7 +33,13 @@ function getUniqueCategories(jobs) {
       });
     }
   });
-  return Array.from(catSet).sort();
+  // REMOVE SORTING - don't sort the resulting array
+  return Array.from(catSet);
+}
+
+// Helper: Get unique companies
+function getUniqueCompanies(jobs) {
+  return getUniqueFromJobs(jobs, "company", company => company && company.trim());
 }
 
 function getUniqueSalaryRanges(jobs) {
@@ -62,14 +69,16 @@ function getUniqueSalaryRanges(jobs) {
       }
     }
   });
-  const canonicalOrder = ["0-3 LPA", "3-6 LPA", "6-10 LPA", "10+ LPA"];
-  const found = Array.from(salaryRangesSet);
-  found.sort((a, b) => canonicalOrder.indexOf(a) - canonicalOrder.indexOf(b));
-  return found;
+  // REMOVE SORTING - do not sort using canonicalOrder
+  return Array.from(salaryRangesSet);
 }
 
 export default function JobsPage({ allData }) {
   const jobs = allData?.jobs ?? [];
+
+  useEffect(()=>{
+console.log(jobs);
+  },[]);
 
   const query = useQuery();
   const navigate = useNavigate();
@@ -78,10 +87,13 @@ export default function JobsPage({ allData }) {
     () => getUniqueFromJobs(jobs, "location", loc => loc && loc.trim()),
     [jobs]
   );
+  const COMPANIES = useMemo(() => getUniqueCompanies(jobs), [jobs]);
   const SALARY_RANGES = useMemo(() => getUniqueSalaryRanges(jobs), [jobs]);
   const CATEGORIES = useMemo(() => getUniqueCategories(jobs), [jobs]);
+
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedLocations, setSelectedLocations] = useState([]);
+  const [selectedCompanies, setSelectedCompanies] = useState([]);
   const [selectedSalaryRanges, setSelectedSalaryRanges] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState(jobs);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -93,6 +105,7 @@ export default function JobsPage({ allData }) {
   // Sync state with URL query on mount or when url changes
   useEffect(() => {
     const locationParam = query.get("location");
+    const companyParam = query.get("company");
     const titleParam = query.get("title");
     const filtersCategoriesParam = query.get("categories");
 
@@ -101,6 +114,14 @@ export default function JobsPage({ allData }) {
         locationParam
           .split(",")
           .filter(loc => !!loc && LOCATIONS.includes(loc))
+      );
+    }
+
+    if (companyParam) {
+      setSelectedCompanies(
+        companyParam
+          .split(",")
+          .filter(cmp => !!cmp && COMPANIES.includes(cmp))
       );
     }
 
@@ -124,6 +145,16 @@ export default function JobsPage({ allData }) {
       );
     }
 
+    if (companyParam) {
+      result = result.filter(job =>
+        companyParam
+          .split(",")
+          .some(cmp =>
+            (job.company || "").toLowerCase().includes(cmp.toLowerCase())
+          )
+      );
+    }
+
     if (titleParam) {
       result = result.filter(job =>
         (job.title || "").toLowerCase().includes(titleParam.toLowerCase())
@@ -141,11 +172,12 @@ export default function JobsPage({ allData }) {
 
     setFilteredJobs(result);
     // eslint-disable-next-line
-  }, [jobs, query, LOCATIONS, CATEGORIES]);
+  }, [jobs, query, LOCATIONS, CATEGORIES, COMPANIES]);
 
   const handleApplyFilters = () => {
     const params = new URLSearchParams();
     if (selectedLocations.length > 0) params.set("location", selectedLocations.join(","));
+    if (selectedCompanies.length > 0) params.set("company", selectedCompanies.join(","));
     if (selectedCategories.length > 0) params.set("categories", selectedCategories.join(","));
 
     navigate({
@@ -158,6 +190,13 @@ export default function JobsPage({ allData }) {
       result = result.filter(job =>
         selectedLocations.some(loc =>
           (job.location || "").toLowerCase().includes(loc.toLowerCase())
+        )
+      );
+    }
+    if (selectedCompanies.length > 0) {
+      result = result.filter(job =>
+        selectedCompanies.some(cmp =>
+          (job.company || "").toLowerCase().includes(cmp.toLowerCase())
         )
       );
     }
@@ -219,10 +258,13 @@ export default function JobsPage({ allData }) {
             <div className="mt-4">
               <Filters
                 LOCATIONS={LOCATIONS}
+                COMPANIES={COMPANIES}
                 SALARY_RANGES={SALARY_RANGES}
                 CATEGORIES={CATEGORIES}
                 selectedLocations={selectedLocations}
                 setSelectedLocations={setSelectedLocations}
+                selectedCompanies={selectedCompanies}
+                setSelectedCompanies={setSelectedCompanies}
                 selectedSalaryRanges={selectedSalaryRanges}
                 setSelectedSalaryRanges={setSelectedSalaryRanges}
                 selectedCategories={selectedCategories}
@@ -246,10 +288,13 @@ export default function JobsPage({ allData }) {
           >
             <Filters
               LOCATIONS={LOCATIONS}
+              COMPANIES={COMPANIES}
               SALARY_RANGES={SALARY_RANGES}
               CATEGORIES={CATEGORIES}
               selectedLocations={selectedLocations}
               setSelectedLocations={setSelectedLocations}
+              selectedCompanies={selectedCompanies}
+              setSelectedCompanies={setSelectedCompanies}
               selectedSalaryRanges={selectedSalaryRanges}
               setSelectedSalaryRanges={setSelectedSalaryRanges}
               selectedCategories={selectedCategories}
@@ -280,13 +325,16 @@ export default function JobsPage({ allData }) {
   );
 }
 
-// Filters now supports categories!
+// Filters now supports categories and company!
 function Filters({
   LOCATIONS = [],
+  COMPANIES = [],
   SALARY_RANGES = [],
   CATEGORIES = [],
   selectedLocations,
   setSelectedLocations,
+  selectedCompanies,
+  setSelectedCompanies,
   selectedSalaryRanges,
   setSelectedSalaryRanges,
   selectedCategories = [],
@@ -362,6 +410,28 @@ function Filters({
                     className="accent-blue-900"
                   />{" "}
                   <span>{loc}</span>
+                </label>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Company */}
+        <div className="mb-6">
+          <h4 className="font-medium mb-2 font-serif text-sm sm:text-base">Company</h4>
+          <div className="space-y-2 text-xs sm:text-sm">
+            {COMPANIES.length === 0 ? (
+              <div className="text-gray-400">No companies found</div>
+            ) : (
+              COMPANIES.map(cmp => (
+                <label key={cmp} className="flex gap-2 cursor-pointer items-center">
+                  <input
+                    type="checkbox"
+                    checked={selectedCompanies.includes(cmp)}
+                    onChange={() => handleCheckboxChange(setSelectedCompanies, selectedCompanies, cmp)}
+                    className="accent-blue-900"
+                  />{" "}
+                  <span>{cmp}</span>
                 </label>
               ))
             )}
